@@ -1,0 +1,234 @@
+/* =============================================
+   FASO TEEDO - STYLES TABLEAU DE BORD
+   ============================================= */
+
+/* Conteneur principal */
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+/* Navigation rapide */
+.nav-rapide {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+}
+
+.nav-rapide .nav-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 0.6rem 0.75rem;
+    border: 2px solid #e0d5c1;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    text-align: center;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+}
+
+.nav-rapide .nav-btn:hover {
+    border-color: #1a5632;
+    background: #f0f7f3;
+    color: #1a5632;
+}
+
+.nav-rapide .nav-btn.actif {
+    background: #1a5632;
+    color: white;
+    border-color: #1a5632;
+}
+
+/* Section période */
+.periode-section {
+    background: white;
+    border-radius: 16px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.periode-selector {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.periode-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 0.6rem 0.4rem;
+    border: 2px solid #e0d5c1;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.periode-btn.active {
+    background: #1a5632;
+    color: white;
+    border-color: #1a5632;
+}
+
+/* Statistiques */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-left: 5px solid #1a5632;
+    transition: all 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.stat-card .stat-valeur {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.stat-card .stat-label {
+    color: #666;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.stat-card.ventes {
+    border-left-color: #27ae60;
+}
+.stat-card.ventes .stat-valeur {
+    color: #27ae60;
+}
+
+.stat-card.salaires {
+    border-left-color: #e74c3c;
+}
+.stat-card.salaires .stat-valeur {
+    color: #e74c3c;
+}
+
+.stat-card.inventaire {
+    border-left-color: #f39c12;
+}
+.stat-card.inventaire .stat-valeur {
+    color: #f39c12;
+}
+
+.stat-card.difference {
+    border-left-color: #2980b9;
+}
+.stat-card.difference .stat-valeur {
+    color: #2980b9;
+}
+
+/* Graphiques */
+.chart-container {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.chart-container h3 {
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e0d5c1;
+}
+
+.chart-container canvas {
+    width: 100% !important;
+    max-height: 350px;
+}
+
+/* Détails */
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.detail-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.detail-card h4 {
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e0d5c1;
+}
+
+/* Listes de détails */
+.detail-liste {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.detail-liste li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-liste li:last-child {
+    border-bottom: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+    .stat-card {
+        padding: 1rem;
+    }
+    .stat-card .stat-valeur {
+        font-size: 1.3rem;
+    }
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+    .nav-rapide {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+    .nav-rapide .nav-btn {
+        flex: 0 0 auto;
+        font-size: 0.75rem;
+        padding: 0.5rem;
+    }
+}

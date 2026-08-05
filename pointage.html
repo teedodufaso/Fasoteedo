@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="FASO TEEDO - Pointage des employés">
+    <meta name="theme-color" content="#1a5632">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FASO TEEDO">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="manifest" href="manifest.json">
+    <title>TEEDO DU FASO - Pointage</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/pointage.css">
+    <style>
+        .carte-employe { transition: all 0.3s ease; animation: fadeIn 0.5s ease; }
+        .carte-employe.pointe { position: relative; overflow: hidden; }
+        .carte-employe.pointe::after { content: '✓'; position: absolute; top: 10px; right: 15px; font-size: 1.5rem; color: #27ae60; font-weight: bold; }
+        .carte-employe .statut-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-top: 8px; }
+        .carte-employe .statut-badge.attente { background: #fdebd0; color: #e67e22; }
+        .carte-employe .statut-badge.fait { background: #d5f5e3; color: #27ae60; }
+        .nav-rapide { display: flex; gap: 0.5rem; flex-wrap: wrap; padding: 0.75rem; background: white; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin: 0.5rem 1rem; }
+        .nav-rapide .nav-btn { flex: 1; min-width: 80px; padding: 0.6rem 0.75rem; border: 2px solid #e0d5c1; border-radius: 8px; background: white; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s; text-align: center; color: #1a1a1a; display: flex; align-items: center; justify-content: center; gap: 0.3rem; }
+        .nav-rapide .nav-btn:hover { border-color: #1a5632; background: #f0f7f3; color: #1a5632; }
+        .nav-rapide .nav-btn.actif { background: #1a5632; color: white; border-color: #1a5632; }
+        .signature-modal .modal { max-width: 500px; }
+        .signature-pad-container { border: 3px solid #333; border-radius: 8px; overflow: hidden; background: white; margin-bottom: 1rem; }
+        .signature-pad-container canvas { display: block; width: 100%; height: 250px; cursor: crosshair; touch-action: none; }
+        .grille-employes { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; padding: 1rem; }
+        .photo-employe { width: 160px; height: 160px; border-radius: 50%; object-fit: cover; border: 3px solid #c4940a; box-shadow: 0 2px 8px rgba(0,0,0,0.15); background: #f0f0f0; }
+        .photo-employe-large { width: 240px; height: 240px; border-radius: 50%; object-fit: cover; border: 3px solid #c4940a; }
+        .banniere-travail { background: linear-gradient(135deg, #1a5632, #2d8a4e); color: white; text-align: center; padding: 1rem; margin: 0; font-size: 1rem; font-weight: 600; text-transform: uppercase; }
+        .banniere-travail .type-travail { font-size: 1.3rem; display: block; }
+        .banniere-travail.non-defini { background: linear-gradient(135deg, #e67e22, #c0392b); animation: pulse 2s infinite; }
+        .resume-config { background: #f0f7f3; border: 2px solid #1a5632; border-radius: 12px; padding: 0.5rem 1rem; margin: 0.5rem 1rem; text-align: center; font-size: 0.9rem; }
+        .tabs-pointage { display: flex; gap: 0; border-bottom: 3px solid #e0d5c1; margin: 0 1rem; overflow-x: auto; }
+        .tabs-pointage .tab-btn { flex: 1; min-width: 100px; padding: 0.75rem 0.5rem; border: none; background: #f9f9f9; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s; white-space: nowrap; color: #666; border-bottom: 3px solid transparent; margin-bottom: -3px; }
+        .tabs-pointage .tab-btn.active { background: white; color: #1a5632; border-bottom-color: #1a5632; }
+        .tab-content-pointage { display: none; padding: 1rem; }
+        .tab-content-pointage.active { display: block; animation: fadeIn 0.3s ease; }
+        .form-section { background: white; border-radius: 16px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+        .form-section h3 { color: #1a5632; border-bottom: 2px solid #e0d5c1; padding-bottom: 0.5rem; }
+        .selection-zone { background: #f0f7f3; border: 2px solid #1a5632; border-radius: 12px; padding: 1rem; margin: 1rem 0; }
+        .selection-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+        .btn-pointage-groupe { background: #1a5632; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .btn-pointage-groupe:hover { background: #2d8a4e; }
+        .btn-pointage-groupe:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-annuler-selection { background: #e74c3c; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .btn-annuler-selection:hover { background: #c0392b; }
+        .btn-annuler-selection:disabled { opacity: 0.5; cursor: not-allowed; }
+        .resume-pointage { background: white; border-radius: 12px; padding: 1rem; margin-top: 1rem; border: 2px solid #1a5632; }
+        .resume-pointage .resume-ligne { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+        .resume-pointage .resume-ligne:last-child { border-bottom: none; }
+        .resume-pointage .total { font-weight: 700; color: #1a5632; font-size: 1.1rem; }
+        .checkbox-pointage { width: 20px; height: 20px; accent-color: #1a5632; cursor: pointer; }
+        .pointage-sacs-input { width: 100px; padding: 0.5rem; border: 2px solid #e0d5c1; border-radius: 8px; font-size: 1rem; text-align: center; }
+        @media (max-width: 480px) { .grille-employes { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; padding: 0.75rem; } .photo-employe { width: 120px; height: 120px; } .nav-rapide { flex-wrap: nowrap; overflow-x: auto; } .nav-rapide .nav-btn { flex: 0 0 auto; font-size: 0.75rem; padding: 0.5rem; } .tabs-pointage .tab-btn { font-size: 0.75rem; padding: 0.5rem 0.3rem; } }
+    </style>
+</head>
+<body>
+    <header class="header-app">
+        <button class="btn-retour" onclick="window.location.href='index.html'">← Retour</button>
+        <h1>Pointage</h1>
+        <div style="width:44px;"></div>
+    </header>
+
+    <div class="nav-rapide">
+        <button class="nav-btn" onclick="window.location.href='admin.html'">⚙️ Admin</button>
+        <button class="nav-btn actif">📋 Pointage</button>
+        <button class="nav-btn" onclick="window.location.href='ventes.html'">💰 Ventes</button>
+        <button class="nav-btn" onclick="window.location.href='dashboard.html'">📊 Dashboard</button>
+    </div>
+
+    <div class="banniere-travail" id="banniereTravail">
+        Type de travail : <span class="type-travail" id="typeTravailTexte">Chargement...</span>
+    </div>
+    <div class="resume-config" id="resumeConfig" style="display:none;"></div>
+
+    <div class="tabs-pointage">
+        <button class="tab-btn active" data-onglet="onglet-config">📝 Config jour</button>
+        <button class="tab-btn" data-onglet="onglet-signatures">✍️ Signatures</button>
+    </div>
+
+    <!-- Onglet Config -->
+    <div class="tab-content-pointage active" id="onglet-config">
+        <div style="max-width:700px;margin:0 auto;">
+            <div class="form-section">
+                <h3>📝 Configuration de la journée</h3>
+                
+                <!-- 1. Type de travail -->
+                <div class="form-group"><label>Type de travail *</label><select id="configTypeTravail" class="form-control"><option value="">Sélectionnez</option><option value="fabrication">🏭 Fabrication</option><option value="emballage">📦 Emballage</option></select></div>
+                
+                <!-- 2. Sélection des employés présents -->
+                <div id="listeEmployesConfig" style="margin:1rem 0;max-height:250px;overflow-y:auto;border:1px solid #ddd;border-radius:8px;padding:0.5rem;"></div>
+                <div id="infoEmployesMsg" style="display:none;"></div>
+                
+                <!-- 3. Nombre total de sacs -->
+                <div class="form-group"><label>Nombre total de sacs *</label><input type="number" id="configTotalSacs" class="form-control" placeholder="Ex: 2" step="0.5" min="0.5"></div>
+                
+                <!-- ✅ BOUTON CORRIGÉ - SANS onclick -->
+                <button type="button" class="btn btn-primaire btn-block btn-lg" id="btnEnregistrerConfig">✅ Enregistrer la configuration</button>
+                <button type="button" class="btn btn-danger btn-block mt-1" id="btnResetConfig">🔄 Réinitialiser la configuration du jour</button>
+                <div id="configInfo" style="margin-top:1rem;padding:0.75rem;background:#f0f7f3;border-radius:8px;display:none;">
+                    <strong>✅ Journée configurée !</strong><br><span id="configInfoText"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Onglet Signatures -->
+    <div class="tab-content-pointage" id="onglet-signatures">
+        <!-- Sélection des employés pour pointage groupé -->
+        <div class="selection-zone">
+            <h4>📋 Sélectionnez les employés à pointer</h4>
+            <div style="max-height:200px;overflow-y:auto;border:1px solid #ddd;border-radius:8px;padding:0.5rem;background:white;" id="listePointageSelection">
+                <p style="color:#999;">Chargement des employés...</p>
+            </div>
+            <div class="selection-actions">
+                <span style="display:flex;align-items:center;gap:0.5rem;font-weight:600;color:#1a5632;">
+                    👥 Sélectionnés : <span id="nbSelectionnes">0</span>
+                </span>
+                <button class="btn-pointage-groupe" id="btnPointageGroupe" onclick="ouvrirPointageGroupe()" disabled>📦 Pointer le groupe</button>
+                <button class="btn-annuler-selection" id="btnAnnulerSelection" onclick="annulerSelection()" disabled>❌ Annuler</button>
+            </div>
+        </div>
+
+        <!-- Résumé du pointage -->
+        <div class="resume-pointage">
+            <h4>📊 Résumé du pointage</h4>
+            <div class="resume-ligne">
+                <span>Total sacs pointés :</span>
+                <span class="total" id="totalSacsPointes">0</span>
+            </div>
+            <div class="resume-ligne">
+                <span>Total salaires :</span>
+                <span class="total" id="totalSalaires">0 FCFA</span>
+            </div>
+            <div id="listePointage" style="margin-top:0.5rem;"></div>
+        </div>
+
+        <!-- Cartes employés -->
+        <div class="grille-employes" id="grilleEmployes"><div class="loader" style="grid-column:1/-1;"><div class="spinner"></div><p>Chargement...</p></div></div>
+        <div id="etatVide" class="etat-vide hidden"><p>Aucun employé</p></div>
+    </div>
+
+    <!-- Modal Pointage Individuel -->
+    <div id="modalPointage" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header"><h3>✍️ Pointage</h3><button class="modal-close" onclick="fermerPointageModal()">✕</button></div>
+            <div style="text-align:center;margin-bottom:1rem;">
+                <img id="pointagePhotoEmploye" src="" class="photo-employe photo-employe-large" style="display:block;margin:0 auto;">
+                <h4 id="pointageNomEmploye"></h4>
+                <p id="pointagePrixInfo" style="color:#1a5632;font-weight:600;"></p>
+            </div>
+            <div class="form-group">
+                <label>Nombre de sacs faits *</label>
+                <input type="number" id="pointageSacs" class="form-control" placeholder="Ex: 0.5, 1, 1.5, 2..." step="0.5" min="0">
+            </div>
+            <div style="text-align:center;padding:0.5rem;font-size:1.2rem;font-weight:700;color:#1a5632;">
+                Salaire estimé : <span id="pointageSalaireEstime">0 FCFA</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="fermerPointageModal()">Annuler</button>
+                <button type="button" class="btn btn-primaire" id="btnValiderPointage" onclick="validerPointage()">✅ Valider</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Pointage Groupe -->
+    <div id="modalPointageGroupe" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header"><h3>👥 Pointage en groupe</h3><button class="modal-close" onclick="fermerPointageGroupe()">✕</button></div>
+            <div style="margin-bottom:1rem;">
+                <p style="color:#666;">Employés sélectionnés :</p>
+                <p id="pointageGroupeNoms" style="font-weight:600;color:#1a5632;"></p>
+            </div>
+            <div class="form-group">
+                <label>Nombre de sacs faits par personne *</label>
+                <input type="number" id="pointageGroupeSacs" class="form-control" placeholder="Ex: 0.5, 1, 1.5, 2..." step="0.5" min="0">
+            </div>
+            <div style="text-align:center;padding:0.5rem;font-size:1.2rem;font-weight:700;color:#1a5632;">
+                Salaire estimé par personne : <span id="pointageGroupeSalaireEstime">0 FCFA</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="fermerPointageGroupe()">Annuler</button>
+                <button type="button" class="btn btn-primaire" id="btnValiderGroupe" onclick="validerPointageGroupe()">✅ Valider tous</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Signature -->
+    <div id="signatureModal" class="modal-overlay hidden">
+        <div class="modal signature-modal">
+            <div class="modal-header"><h3 id="signatureTitre">Signature</h3><button class="modal-close" onclick="fermerSignatureModal()">✕</button></div>
+            <div style="text-align:center;margin-bottom:1rem;">
+                <img id="signaturePhotoEmploye" src="" class="photo-employe photo-employe-large" style="display:block;margin:0 auto;">
+                <h4 id="signatureNomEmploye"></h4>
+                <p id="infoSalaireModal" style="color:#1a5632;font-weight:600;display:none;"></p>
+            </div>
+            <p style="text-align:center;color:#666;">Signez ci-dessous</p>
+            <div class="signature-pad-container"><canvas id="signatureCanvas"></canvas></div>
+            <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+                <button class="btn btn-outline btn-block" onclick="effacerSignature()">🗑️ Effacer</button>
+                <button class="btn btn-primaire btn-block" onclick="validerSignature()" id="btnValiderSignature">✅ Valider</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth-check.js"></script>
+    <script src="js/pointage.js"></script>
+
+    <!-- ✅ FIX : Initialisation du bouton enregistrer -->
+    <script>
+        (function() {
+            console.log('🔧 Initialisation du bouton enregistrer...');
+            
+            // Attendre que le DOM soit chargé
+            function initBouton() {
+                const btn = document.getElementById('btnEnregistrerConfig');
+                if (!btn) {
+                    console.error('❌ Bouton btnEnregistrerConfig non trouvé');
+                    return;
+                }
+                
+                // Supprimer les anciens écouteurs
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+                
+                // Ajouter le nouvel écouteur
+                newBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🔄 Bouton enregistrer cliqué (depuis HTML)');
+                    
+                    if (typeof enregistrerConfiguration === 'function') {
+                        enregistrerConfiguration();
+                    } else {
+                        console.error('❌ fonction enregistrerConfiguration non trouvée');
+                        // Fallback: afficher un message
+                        alert('Erreur: fonction enregistrerConfiguration non trouvée. Vérifiez que pointage.js est chargé.');
+                    }
+                });
+                
+                console.log('✅ Bouton enregistrer initialisé avec succès');
+            }
+            
+            // Exécuter au chargement
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initBouton);
+            } else {
+                initBouton();
+            }
+            
+            // Backup: réessayer après 1 seconde
+            setTimeout(initBouton, 1000);
+        })();
+    </script>
+
+    <script>
+        if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').then(r=>console.log('✅SW')).catch(e=>console.log('❌SW'));});}
+        let dp;window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();dp=e;if(!window.matchMedia('(display-mode:standalone)').matches&&localStorage.getItem('faso_teedo_installed')!=='true'&&!document.getElementById('banniereInstallation')){const b=document.createElement('div');b.id='banniereInstallation';b.innerHTML=`<div class="banniere-install-content"><div class="banniere-install-logo"><img src="icons/icon-192x192.png"></div><div class="banniere-install-info"><div class="banniere-install-titre">FASO TEEDO</div><div class="banniere-install-sous-titre">Application de gestion</div></div><button class="banniere-install-btn" id="btnInstallBanniere">📲 Installer</button><button class="banniere-install-close" id="btnCloseBanniere">✕</button></div>`;b.style.cssText='position:fixed;bottom:0;left:0;right:0;z-index:99999;background:linear-gradient(135deg,#1a5632,#2d8a4e);padding:16px 20px;box-shadow:0 -4px 20px rgba(0,0,0,0.4);animation:slideUpBanniere 0.5s ease;border-top:4px solid #d4a017;';document.body.appendChild(b);document.getElementById('btnInstallBanniere').addEventListener('click',async()=>{if(dp){dp.prompt();await dp.userChoice;dp=null;localStorage.setItem('faso_teedo_installed','true');b.remove();}});document.getElementById('btnCloseBanniere').addEventListener('click',()=>b.remove());}});
+    </script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FASO TEEDO - Gestion des ventes">
+    <meta name="theme-color" content="#1a5632">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FASO TEEDO">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="manifest" href="manifest.json">
+    <title>FASO TEEDO - Ventes</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/ventes.css">
+    <style>
+        .ventes-container { max-width: 1000px; margin: 0 auto; padding: 1rem; }
+        .mode-selector { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+        .mode-btn { flex: 1; padding: 1rem; border: 3px solid #e0d5c1; border-radius: 16px; background: white; cursor: pointer; text-align: center; font-weight: 600; font-size: 1rem; transition: all 0.2s; }
+        .mode-btn:hover { border-color: #c4940a; }
+        .mode-btn.active { border-color: #1a5632; background: #f0f7f3; color: #1a5632; }
+        .mode-content { display: none; }
+        .mode-content.active { display: block; animation: fadeIn 0.3s ease; }
+        .nav-rapide { display: flex; gap: 0.5rem; flex-wrap: wrap; padding: 0.75rem; background: white; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 1rem; }
+        .nav-rapide .nav-btn { flex: 1; min-width: 80px; padding: 0.6rem 0.75rem; border: 2px solid #e0d5c1; border-radius: 8px; background: white; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s; text-align: center; color: #1a1a1a; display: flex; align-items: center; justify-content: center; gap: 0.3rem; }
+        .nav-rapide .nav-btn:hover { border-color: #1a5632; background: #f0f7f3; color: #1a5632; }
+        .nav-rapide .nav-btn.actif { background: #1a5632; color: white; border-color: #1a5632; }
+        .panier-container { background: #f0f7f3; border: 2px solid #1a5632; border-radius: 16px; padding: 1rem; margin: 1rem 0; }
+        .panier-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; border-bottom: 1px solid #e0e0e0; background: white; border-radius: 8px; margin-bottom: 0.5rem; }
+        .panier-item .produit-nom { font-weight: 600; }
+        .panier-item .produit-total { font-weight: 700; color: #1a5632; font-size: 1.1rem; }
+        .panier-item .btn-supprimer { background: #e74c3c; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
+        .panier-total { text-align: right; font-size: 1.4rem; font-weight: 700; color: #1a5632; padding: 1rem; background: white; border-radius: 8px; margin-top: 0.5rem; }
+        .paiement-selector { display: flex; gap: 1rem; margin: 1rem 0; padding: 1rem; background: #f9f9f9; border-radius: 12px; border: 2px solid #e0d5c1; flex-wrap: wrap; }
+        .paiement-option { flex: 1; min-width: 80px; text-align: center; padding: 1rem; border-radius: 10px; cursor: pointer; border: 3px solid transparent; transition: all 0.2s; font-weight: 600; }
+        .paiement-option.active { border-color: #1a5632; background: #f0f7f3; color: #1a5632; }
+        .combine-section { background: #fef9e7; border: 2px solid #f39c12; border-radius: 12px; padding: 1rem; margin-top: 0.5rem; }
+        .orange-section { background: #eaf2f8; border: 2px solid #2980b9; border-radius: 12px; padding: 1rem; margin-top: 0.5rem; }
+        .bandeau-stock { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; margin-bottom: 1rem; padding: 0.75rem; background: linear-gradient(135deg, #1a5632, #2d8a4e); border-radius: 12px; }
+        .stock-item { text-align: center; color: white; padding: 0.25rem; }
+        .stock-item .stock-quantite { font-size: 1.2rem; font-weight: 700; }
+        .stock-item .stock-label { font-size: 0.75rem; opacity: 0.9; }
+        @media (max-width: 480px) { .mode-selector { flex-direction: column; } .panier-item { flex-direction: column; text-align: center; gap: 0.5rem; } .nav-rapide { flex-wrap: nowrap; overflow-x: auto; } .nav-rapide .nav-btn { flex: 0 0 auto; font-size: 0.75rem; padding: 0.5rem; } .paiement-selector { flex-direction: column; gap: 0.5rem; } .bandeau-stock { grid-template-columns: 1fr 1fr; } }
+    </style>
+</head>
+<body>
+    <header class="header-app">
+        <button class="btn-retour" onclick="window.location.href='index.html'">← Retour</button>
+        <h1>Ventes</h1>
+        <div style="width:44px;"></div>
+    </header>
+
+    <div class="ventes-container">
+        <div class="nav-rapide">
+            <button class="nav-btn" onclick="naviguerVers('admin.html')">⚙️ Admin</button>
+            <button class="nav-btn" onclick="naviguerVers('pointage.html')">📋 Pointage</button>
+            <button class="nav-btn actif">💰 Ventes</button>
+            <button class="nav-btn" onclick="naviguerVers('dashboard.html')">📊 Dashboard</button>
+        </div>
+
+        <div class="bandeau-stock" id="bandeauStock">
+            <div class="stock-item"><div class="stock-label">Caramel Simple</div><div class="stock-quantite" id="stockCaramelSimple">-</div></div>
+            <div class="stock-item"><div class="stock-label">Caramel Gingembre</div><div class="stock-quantite" id="stockCaramelGingembre">-</div></div>
+            <div class="stock-item"><div class="stock-label">Morceaux (Casée)</div><div class="stock-quantite" id="stockMorceaux">-</div></div>
+            <div class="stock-item"><div class="stock-label">Farine (Kilo)</div><div class="stock-quantite" id="stockFarineKilo">-</div></div>
+        </div>
+
+        <div class="mode-selector">
+            <button class="mode-btn active" data-mode="passage">🚶 Vente au passage</button>
+            <button class="mode-btn" data-mode="fidele">⭐ Client fidèle</button>
+        </div>
+
+        <!-- Mode Passage -->
+        <div class="mode-content active" id="modePassage">
+            <div class="form-section">
+                <h3>🚶 Vente au passage</h3>
+                <div class="form-group"><label>Nom du client *</label><input type="text" id="passageClientNom" class="form-control" placeholder="Nom du client" required></div>
+                <div class="form-group"><label>Produit *</label><select id="passageProduit" class="form-control" required><option value="">Sélectionnez</option></select></div>
+                <div class="form-group"><label>Quantité *</label><input type="number" id="passageQuantite" class="form-control" placeholder="0" step="0.01" min="0.01" required></div>
+                <div class="form-group"><label>Prix unitaire (FCFA)</label><input type="number" id="passagePrixUnitaire" class="form-control" readonly></div>
+                <div id="passageTotalLigne" style="font-size:1.2rem;font-weight:700;color:#1a5632;text-align:right;padding:0.5rem;">Total ligne : 0 FCFA</div>
+                <button class="btn btn-secondaire btn-block" id="btnAjouterPanierPassage">🛒 Ajouter au panier</button>
+                
+                <div class="panier-container" id="panierPassage">
+                    <h4>🧺 Panier</h4>
+                    <div id="contenuPanierPassage"><div class="panier-vide">Panier vide</div></div>
+                    <div class="panier-total hidden" id="panierTotalPassage">Total : <span id="montantTotalPassage">0</span> FCFA</div>
+                </div>
+                
+                <div id="validationPassage" class="hidden">
+                    <div class="paiement-selector" id="paiementSelectorPassage">
+                        <div class="paiement-option active" data-mode="espece" onclick="changerModePaiementPassage('espece')"><span style="font-size:2rem;">💵</span> Espèce</div>
+                        <div class="paiement-option" data-mode="orange" onclick="changerModePaiementPassage('orange')"><span style="font-size:2rem;">📱</span> Orange Money</div>
+                        <div class="paiement-option" data-mode="combine" onclick="changerModePaiementPassage('combine')"><span style="font-size:2rem;">💵+📱</span> Combiné</div>
+                    </div>
+                    
+                    <div id="argentRecuSectionPassage">
+                        <div class="form-group"><label>Argent reçu (FCFA)</label><input type="number" id="passageArgentRecu" class="form-control" placeholder="0" step="1" min="0"></div>
+                        <div id="passageMonnaie">Monnaie : 0 FCFA</div>
+                    </div>
+                    
+                    <div class="orange-section hidden" id="orangeSectionPassage">
+                        <h5>📱 Orange Money</h5>
+                        <p style="color:#666;font-size:0.9rem;">Le montant est automatiquement le total de la vente</p>
+                        <div class="form-group"><label>Montant Orange Money (FCFA)</label><input type="number" id="passageOrangeRecu" class="form-control" placeholder="Total auto" step="1" min="0" readonly style="background:#f0f7f3;font-weight:bold;"></div>
+                        <div id="passageMonnaieOrange">Monnaie : 0 FCFA</div>
+                    </div>
+                    
+                    <div class="combine-section hidden" id="combineSectionPassage">
+                        <h5>💵+📱 Combiné</h5>
+                        <div class="form-group"><label>Espèce (FCFA)</label><input type="number" id="passageEspeceCombine" class="form-control" placeholder="0" step="1" min="0"></div>
+                        <div class="form-group"><label>Orange Money (FCFA)</label><input type="number" id="passageOrangeCombine" class="form-control" placeholder="0" step="1" min="0"></div>
+                        <div id="passageMonnaieCombine">Monnaie : 0 FCFA</div>
+                    </div>
+                    
+                    <div class="form-group"><label>Caissier *</label><input type="text" id="passageCaissier" class="form-control" placeholder="Nom du vendeur" required></div>
+                    <button class="btn btn-primaire btn-block btn-lg" id="btnValiderPanierPassage">✅ Valider et imprimer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mode Fidèle -->
+        <div class="mode-content" id="modeFidele">
+            <div class="form-section">
+                <h3>🔍 Client fidèle</h3>
+                <div class="recherche-client-container">
+                    <input type="text" id="rechercheClient" class="form-control" placeholder="Tapez le nom..." autocomplete="off">
+                    <div class="resultat-recherche" id="resultatsRecherche"></div>
+                </div>
+                <div class="client-selectionne-info hidden" id="clientSelectionneInfo">
+                    <span id="clientSelectionneNom"></span><span class="prix-special-badge">⭐ Prix spéciaux</span>
+                    <button class="btn btn-outline btn-sm" style="float:right;" onclick="deselectionnerClient()">✕</button>
+                </div>
+                <button class="btn btn-outline btn-block mt-1" id="btnNouveauClient">➕ Nouveau client fidèle</button>
+            </div>
+            <div class="form-section" id="formFideleSection" style="display:none;">
+                <h3>⭐ Ajouter au panier</h3>
+                <div class="form-group"><label>Produit *</label><select id="fideleProduit" class="form-control" required><option value="">Sélectionnez</option></select></div>
+                <div class="form-group"><label>Quantité *</label><input type="number" id="fideleQuantite" class="form-control" placeholder="0" step="0.01" min="0.01" required></div>
+                <div class="form-group"><label>Prix appliqué</label><input type="text" id="fidelePrixApplique" class="form-control" readonly></div>
+                <div id="fideleTotalLigne" style="font-size:1.2rem;font-weight:700;color:#1a5632;text-align:right;padding:0.5rem;">Total ligne : 0 FCFA</div>
+                <button class="btn btn-secondaire btn-block" id="btnAjouterPanierFidele">🛒 Ajouter au panier</button>
+                
+                <div class="panier-container" id="panierFidele">
+                    <h4>🧺 Panier</h4>
+                    <div id="contenuPanierFidele"><div class="panier-vide">Panier vide</div></div>
+                    <div class="panier-total hidden" id="panierTotalFidele">Total : <span id="montantTotalFidele">0</span> FCFA</div>
+                </div>
+                
+                <div id="validationFidele" class="hidden">
+                    <div class="paiement-selector" id="paiementSelectorFidele">
+                        <div class="paiement-option active" data-mode="espece" onclick="changerModePaiementFidele('espece')"><span style="font-size:2rem;">💵</span> Espèce</div>
+                        <div class="paiement-option" data-mode="orange" onclick="changerModePaiementFidele('orange')"><span style="font-size:2rem;">📱</span> Orange Money</div>
+                        <div class="paiement-option" data-mode="combine" onclick="changerModePaiementFidele('combine')"><span style="font-size:2rem;">💵+📱</span> Combiné</div>
+                    </div>
+                    
+                    <div id="argentRecuSectionFidele">
+                        <div class="form-group"><label>Argent reçu (FCFA)</label><input type="number" id="fideleArgentRecu" class="form-control" placeholder="0" step="1" min="0"></div>
+                        <div id="fideleMonnaie">Monnaie : 0 FCFA</div>
+                    </div>
+                    
+                    <div class="orange-section hidden" id="orangeSectionFidele">
+                        <h5>📱 Orange Money</h5>
+                        <p style="color:#666;font-size:0.9rem;">Le montant est automatiquement le total de la vente</p>
+                        <div class="form-group"><label>Montant Orange Money (FCFA)</label><input type="number" id="fideleOrangeRecu" class="form-control" placeholder="Total auto" step="1" min="0" readonly style="background:#f0f7f3;font-weight:bold;"></div>
+                        <div id="fideleMonnaieOrange">Monnaie : 0 FCFA</div>
+                    </div>
+                    
+                    <div class="combine-section hidden" id="combineSectionFidele">
+                        <h5>💵+📱 Combiné</h5>
+                        <div class="form-group"><label>Espèce (FCFA)</label><input type="number" id="fideleEspeceCombine" class="form-control" placeholder="0"></div>
+                        <div class="form-group"><label>Orange Money (FCFA)</label><input type="number" id="fideleOrangeCombine" class="form-control" placeholder="0"></div>
+                        <div id="fideleMonnaieCombine">Monnaie : 0 FCFA</div>
+                    </div>
+                    
+                    <div class="form-group"><label>Caissier *</label><input type="text" id="fideleCaissier" class="form-control" placeholder="Nom du vendeur" required></div>
+                    <button class="btn btn-primaire btn-block btn-lg" id="btnValiderPanierFidele">✅ Valider et imprimer</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="historique-ventes form-section"><h3>📋 Historique du jour</h3><div id="historiqueVentes"><div class="loader"><div class="spinner"></div><span>Chargement...</span></div></div></div>
+    </div>
+
+    <div id="modalNouveauClient" class="modal-overlay hidden">
+        <div class="modal" style="max-width:600px;">
+            <div class="modal-header"><h3>➕ Nouveau client</h3><button class="modal-close" onclick="fermerModalNouveauClient()">✕</button></div>
+            <form id="formNouveauClient" onsubmit="return false;">
+                <div class="form-group"><label>Nom *</label><input type="text" id="newClientNom" class="form-control" required></div>
+                <div class="form-group"><label>Téléphone</label><input type="tel" id="newClientTelephone" class="form-control"></div>
+                <h4>💎 Prix spéciaux (optionnels)</h4>
+                <div class="form-group"><label>Caramel Simple</label><input type="number" id="newPrixCaramelSimple" class="form-control" placeholder="Prix unitaire" step="1" min="0"></div>
+                <div class="form-group"><label>Caramel Gingembre</label><input type="number" id="newPrixCaramelGingembre" class="form-control" placeholder="Prix unitaire" step="1" min="0"></div>
+                <div class="form-group"><label>Morceaux (Casée) - kg</label><input type="number" id="newPrixMorceaux" class="form-control" placeholder="Prix unitaire" step="1" min="0"></div>
+                <div class="form-group"><label>Farine (Kilo)</label><input type="number" id="newPrixFarineKilo" class="form-control" placeholder="Prix unitaire" step="1" min="0"></div>
+                <div class="modal-footer"><button type="button" class="btn btn-outline" onclick="fermerModalNouveauClient()">Annuler</button><button type="submit" class="btn btn-primaire">Ajouter</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalMdpNavigation" class="modal-overlay hidden">
+        <div class="modal" style="max-width:400px;">
+            <div class="modal-header"><h3>🔐 Authentification</h3><button class="modal-close" onclick="fermerModalMdp()">✕</button></div>
+            <div style="text-align:center;"><span style="font-size:3rem;">🔒</span><p>Mot de passe requis</p></div>
+            <div class="form-group"><input type="password" id="mdpNavigation" class="form-control" placeholder="Mot de passe" autocomplete="off"></div>
+            <button class="btn btn-primaire btn-block" id="btnValiderMdpNavigation">✅ Valider</button>
+            <button class="btn btn-outline btn-block mt-1" onclick="fermerModalMdp()">Annuler</button>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth-check.js"></script>
+    <script src="js/ventes.js"></script>
+    <script>
+        let pageDestination = '';
+        function naviguerVers(page) { pageDestination = page; document.getElementById('modalMdpNavigation').classList.remove('hidden'); document.getElementById('mdpNavigation').focus(); }
+        function fermerModalMdp() { document.getElementById('modalMdpNavigation').classList.add('hidden'); }
+        document.getElementById('btnValiderMdpNavigation').addEventListener('click', async function() {
+            const mdp = document.getElementById('mdpNavigation').value.trim();
+            if (!mdp) { afficherToastNavigation('Mot de passe requis', 'warning'); return; }
+            const btn = this; btn.disabled = true; btn.textContent = '⏳...';
+            try {
+                let ok = false;
+                if (typeof verifyPassword === 'function') ok = await verifyPassword(mdp);
+                if (!ok && mdp === 'admin') ok = true;
+                if (ok) { createSession(); window.location.href = pageDestination; }
+                else { afficherToastNavigation('Mot de passe incorrect', 'error'); btn.disabled = false; btn.textContent = '✅ Valider'; }
+            } catch(e) { if (mdp === 'admin') { createSession(); window.location.href = pageDestination; } else { afficherToastNavigation('Erreur', 'error'); btn.disabled = false; btn.textContent = '✅ Valider'; } }
+        });
+        function afficherToastNavigation(m, t) { const c = document.getElementById('toastContainer'); if (!c) return; const d = document.createElement('div'); d.className = `toast toast-${t}`; d.innerHTML = `<span>${t==='success'?'✅':t==='error'?'❌':'⚠️'}</span> ${m}`; c.appendChild(d); setTimeout(() => { d.style.animation = 'slideInRight 0.3s ease reverse'; setTimeout(() => d.remove(), 300); }, 4000); }
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) { window.addEventListener('load', function() { navigator.serviceWorker.register('/sw.js').then(r=>console.log('✅SW')).catch(e=>{}); }); }
+    </script>
+</body>
+</html>

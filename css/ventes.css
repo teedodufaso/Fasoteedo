@@ -1,0 +1,246 @@
+/* =============================================
+   FASO TEEDO - STYLES VENTES
+   ============================================= */
+
+/* Conteneur principal */
+.ventes-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+/* Sélecteur de mode */
+.mode-selector {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.mode-btn {
+    flex: 1;
+    padding: 1rem;
+    border: 3px solid #e0d5c1;
+    border-radius: 16px;
+    background: white;
+    cursor: pointer;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.mode-btn:hover {
+    border-color: #c4940a;
+}
+
+.mode-btn.active {
+    border-color: #1a5632;
+    background: #f0f7f3;
+    color: #1a5632;
+}
+
+/* Contenu des modes */
+.mode-content {
+    display: none;
+}
+
+.mode-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Navigation rapide */
+.nav-rapide {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+}
+
+.nav-rapide .nav-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 0.6rem 0.75rem;
+    border: 2px solid #e0d5c1;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    text-align: center;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+}
+
+.nav-rapide .nav-btn:hover {
+    border-color: #1a5632;
+    background: #f0f7f3;
+    color: #1a5632;
+}
+
+.nav-rapide .nav-btn.actif {
+    background: #1a5632;
+    color: white;
+    border-color: #1a5632;
+}
+
+/* Panier */
+.panier-container {
+    background: #f0f7f3;
+    border: 2px solid #1a5632;
+    border-radius: 16px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.panier-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    border-bottom: 1px solid #e0e0e0;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.panier-item .produit-nom {
+    font-weight: 600;
+}
+
+.panier-item .produit-total {
+    font-weight: 700;
+    color: #1a5632;
+    font-size: 1.1rem;
+}
+
+.panier-item .btn-supprimer {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.panier-total {
+    text-align: right;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1a5632;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+}
+
+/* Paiement */
+.paiement-selector {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: #f9f9f9;
+    border-radius: 12px;
+    border: 2px solid #e0d5c1;
+    flex-wrap: wrap;
+}
+
+.paiement-option {
+    flex: 1;
+    min-width: 80px;
+    text-align: center;
+    padding: 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.2s;
+    font-weight: 600;
+}
+
+.paiement-option.active {
+    border-color: #1a5632;
+    background: #f0f7f3;
+    color: #1a5632;
+}
+
+/* Sections paiement */
+.combine-section {
+    background: #fef9e7;
+    border: 2px solid #f39c12;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-top: 0.5rem;
+}
+
+.orange-section {
+    background: #eaf2f8;
+    border: 2px solid #2980b9;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-top: 0.5rem;
+}
+
+/* Bandeau stock */
+.bandeau-stock {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: linear-gradient(135deg, #1a5632, #2d8a4e);
+    border-radius: 12px;
+}
+
+.bandeau-stock .stock-item {
+    text-align: center;
+    color: white;
+    padding: 0.25rem;
+}
+
+.bandeau-stock .stock-quantite {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.bandeau-stock .stock-label {
+    font-size: 0.75rem;
+    opacity: 0.9;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .mode-selector {
+        flex-direction: column;
+    }
+    .panier-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+    .nav-rapide {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+    .nav-rapide .nav-btn {
+        flex: 0 0 auto;
+        font-size: 0.75rem;
+        padding: 0.5rem;
+    }
+    .paiement-selector {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .bandeau-stock {
+        grid-template-columns: 1fr 1fr;
+    }
+}

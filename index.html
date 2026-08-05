@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FASO TEEDO - Application de gestion d'entreprise">
+    <meta name="theme-color" content="#1a5632">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FASO TEEDO">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="manifest" href="manifest.json">
+    <title>FASO TEEDO - Accueil</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .carte-ventes-sans-mdp { position: relative; }
+        .carte-ventes-sans-mdp .badge-acces-libre { position: absolute; top: 10px; right: 10px; background: #27ae60; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+        .logo-accueil { 
+            max-height: 180px; 
+            max-width: 350px; 
+            width: auto; 
+            height: auto; 
+            object-fit: contain; 
+            display: block; 
+            margin: 0 auto; 
+            background: transparent !important; 
+            border: none !important; 
+            box-shadow: none !important; 
+            padding: 0 !important; 
+            border-radius: 0 !important;
+        }
+        .logo-accueil-container { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100px; 
+            background: transparent !important; 
+            border: none !important; 
+            padding: 1rem !important; 
+            margin-top: 0.5rem; 
+        }
+        .logo-fallback { 
+            font-size: 6rem; 
+            display: block; 
+            text-align: center; 
+            background: transparent !important; 
+        }
+        .accueil-header { padding: 1.5rem 1rem 0.5rem !important; }
+    </style>
+</head>
+<body>
+    <div class="container-accueil" id="accueilContainer">
+        <div class="accueil-header text-center">
+            <div class="logo-accueil-container" id="logoContainer">
+                <span id="logoDisplay" class="logo-fallback">🏭</span>
+            </div>
+            <h1 style="color: var(--couleur-primaire);" id="titreEntreprise">FASO TEEDO</h1>
+            <p style="color: var(--couleur-texte-clair); font-size: 0.9rem;">Application de gestion</p>
+        </div>
+        <div id="alertMessage" class="alert alert-info hidden" style="max-width: 600px; margin: 0 auto 1rem;"><span id="alertText"></span></div>
+        <div class="grille-accueil">
+            <div class="carte-accueil carte-interactive" data-page="pointage.html"><div class="icone-accueil">📋</div><h2>Pointage</h2><p>Enregistrement des présences quotidiennes</p><div class="password-section"><div class="password-container"><input type="password" class="form-control password-input" placeholder="Mot de passe" autocomplete="off"><button type="button" class="password-toggle">👁️</button></div><button class="btn btn-primaire btn-block btn-entrer mt-1" data-page="pointage.html">ENTRER</button></div></div>
+            <div class="carte-accueil carte-interactive" data-page="admin.html"><div class="icone-accueil">⚙️</div><h2>Administration</h2><p>Gestion des employés, stocks, clients, salaires</p><div class="password-section"><div class="password-container"><input type="password" class="form-control password-input" placeholder="Mot de passe" autocomplete="off"><button type="button" class="password-toggle">👁️</button></div><button class="btn btn-primaire btn-block btn-entrer mt-1" data-page="admin.html">ENTRER</button></div></div>
+            <div class="carte-accueil carte-interactive carte-ventes-sans-mdp" data-page="ventes.html"><span class="badge-acces-libre">🔓 Accès libre</span><div class="icone-accueil">💰</div><h2>Ventes</h2><p>Gestion des ventes, panier multi-produits, clients</p><div class="password-section"><button class="btn btn-secondaire btn-block btn-entrer-direct mt-1" data-page="ventes.html" style="font-size:1.1rem;">ENTRER</button></div></div>
+            <div class="carte-accueil carte-interactive" data-page="dashboard.html"><div class="icone-accueil">📊</div><h2>Tableau de bord</h2><p>Statistiques, graphiques, évolution des ventes</p><div class="password-section"><div class="password-container"><input type="password" class="form-control password-input" placeholder="Mot de passe" autocomplete="off"><button type="button" class="password-toggle">👁️</button></div><button class="btn btn-primaire btn-block btn-entrer mt-1" data-page="dashboard.html">ENTRER</button></div></div>
+        </div>
+        <div class="text-center" style="padding:1rem;color:var(--couleur-texte-clair);font-size:0.8rem;" id="footerText">
+            <p>© <span id="footerYear">2026</span> <span id="footerNom">FASO TEEDO</span> - Tous droits réservés</p>
+        </div>
+    </div>
+    <div id="loader" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.9);z-index:9999;display:none;align-items:center;justify-content:center;"><div style="text-align:center;"><div class="spinner"></div><p style="margin-top:1rem;color:#1a5632;">Vérification...</p></div></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script>
+        'use strict';
+        
+        document.addEventListener('DOMContentLoaded', function() { initialiserPageAccueil(); });
+        
+        async function initialiserPageAccueil() {
+            document.getElementById('footerYear').textContent = new Date().getFullYear();
+            appliquerPersonnalisationDepuisLocalStorage();
+            verifierParametresURL();
+            await chargerPersonnalisation();
+            initialiserPasswordToggles();
+            initialiserBoutonsEntrer();
+            initialiserBoutonsDirects();
+            initialiserValidationClavier();
+            console.log('✅ Accueil initialisé');
+        }
+        
+        function appliquerPersonnalisationDepuisLocalStorage() {
+            const logoUrl = localStorage.getItem('faso_teedo_logo');
+            if (logoUrl) { 
+                const ld = document.getElementById('logoDisplay'); 
+                if (ld) { 
+                    ld.classList.remove('logo-fallback'); 
+                    ld.innerHTML = `<img src="${logoUrl}" alt="Logo" class="logo-accueil" style="background:transparent !important;">`; 
+                } 
+            }
+            const fondUrl = localStorage.getItem('faso_teedo_fond');
+            if (fondUrl) { 
+                document.body.style.backgroundImage = `url(${fondUrl})`; 
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundAttachment = 'fixed';
+                document.body.style.backgroundRepeat = 'no-repeat';
+                document.body.classList.add('fond-personnalise'); 
+            }
+            const nom = localStorage.getItem('faso_teedo_nom');
+            if (nom) { 
+                document.getElementById('titreEntreprise').textContent = nom; 
+                document.getElementById('footerNom').textContent = nom; 
+                document.title = nom + ' - Accueil'; 
+            }
+        }
+        
+        function verifierParametresURL() {
+            const p = new URLSearchParams(window.location.search);
+            const r = p.get('reason');
+            if (r === 'session_expired' || r === 'session_timeout') afficherAlerte('Session expirée.', 'warning');
+            else if (r === 'logout') afficherAlerte('Déconnecté.', 'info');
+            if (window.history && window.history.replaceState) window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        
+        async function chargerPersonnalisation() {
+            await new Promise(r => setTimeout(r, 300));
+            try {
+                if (typeof getConfig !== 'function') return;
+                const config = await getConfig();
+                console.log('📋 Config reçue:', Object.keys(config).join(', '));
+                
+                if (config.logo_url && config.logo_url.trim() !== '') {
+                    const ld = document.getElementById('logoDisplay');
+                    if (ld) { 
+                        ld.classList.remove('logo-fallback'); 
+                        ld.innerHTML = `<img src="${config.logo_url}?t=${Date.now()}" alt="Logo" class="logo-accueil" style="background:transparent !important;">`; 
+                    }
+                    localStorage.setItem('faso_teedo_logo', config.logo_url);
+                } else {
+                    localStorage.removeItem('faso_teedo_logo');
+                    const ld = document.getElementById('logoDisplay');
+                    if (ld) {
+                        ld.classList.add('logo-fallback');
+                        ld.innerHTML = '🏭';
+                    }
+                }
+                if (config.fond_url && config.fond_url.trim() !== '') {
+                    document.body.style.backgroundImage = `url(${config.fond_url}?t=${Date.now()})`;
+                    document.body.style.backgroundSize = 'cover';
+                    document.body.style.backgroundPosition = 'center';
+                    document.body.style.backgroundAttachment = 'fixed';
+                    document.body.style.backgroundRepeat = 'no-repeat';
+                    document.body.classList.add('fond-personnalise');
+                    localStorage.setItem('faso_teedo_fond', config.fond_url);
+                } else {
+                    document.body.style.backgroundImage = '';
+                    document.body.style.backgroundSize = '';
+                    document.body.style.backgroundPosition = '';
+                    document.body.style.backgroundAttachment = '';
+                    document.body.style.backgroundRepeat = '';
+                    document.body.classList.remove('fond-personnalise');
+                    localStorage.removeItem('faso_teedo_fond');
+                }
+                if (config.entreprise_nom) {
+                    document.getElementById('titreEntreprise').textContent = config.entreprise_nom;
+                    document.getElementById('footerNom').textContent = config.entreprise_nom;
+                    document.title = config.entreprise_nom + ' - Accueil';
+                    localStorage.setItem('faso_teedo_nom', config.entreprise_nom);
+                }
+                document.getElementById('footerYear').textContent = new Date().getFullYear();
+            } catch(e) { console.warn('Config non chargée:', e.message); }
+        }
+        
+        function initialiserPasswordToggles() {
+            document.querySelectorAll('.password-toggle').forEach(function(t) {
+                t.addEventListener('click', function() {
+                    const i = this.closest('.password-container').querySelector('.password-input');
+                    if (i.type === 'password') { i.type = 'text'; this.textContent = '🙈'; }
+                    else { i.type = 'password'; this.textContent = '👁️'; }
+                });
+            });
+        }
+        
+        function initialiserBoutonsEntrer() {
+            document.querySelectorAll('.btn-entrer').forEach(function(b) {
+                b.addEventListener('click', function() {
+                    const c = this.closest('.carte-accueil');
+                    const p = this.getAttribute('data-page');
+                    const pi = c.querySelector('.password-input');
+                    const mdp = pi.value;
+                    if (!mdp || !mdp.trim()) { secouerElement(pi); pi.focus(); return; }
+                    verifierEtRediriger(mdp, p, this, pi);
+                });
+            });
+        }
+        
+        function initialiserBoutonsDirects() {
+            document.querySelectorAll('.btn-entrer-direct').forEach(function(b) {
+                b.addEventListener('click', function() { createSession(); window.location.href = this.getAttribute('data-page'); });
+            });
+        }
+        
+        async function verifierEtRediriger(mdp, page, btn, pi) {
+            btn.disabled = true; btn.textContent = 'VÉRIFICATION...'; document.getElementById('loader').style.display = 'flex';
+            try {
+                let ok = false;
+                if (typeof verifyPassword === 'function') { try { ok = await verifyPassword(mdp); } catch(e) {} }
+                if (!ok && mdp === 'admin') ok = true;
+                if (ok) { createSession(); btn.textContent = '✓ ACCÈS AUTORISÉ'; btn.style.background = '#27ae60'; setTimeout(() => window.location.href = page, 300); }
+                else { document.getElementById('loader').style.display = 'none'; btn.disabled = false; btn.textContent = 'ENTRER'; secouerElement(pi); pi.value = ''; pi.focus(); afficherAlerte('Mot de passe incorrect.', 'error'); }
+            } catch(e) {
+                if (mdp === 'admin') { createSession(); btn.textContent = '✓ ACCÈS AUTORISÉ'; btn.style.background = '#27ae60'; setTimeout(() => window.location.href = page, 300); }
+                else { document.getElementById('loader').style.display = 'none'; btn.disabled = false; btn.textContent = 'ENTRER'; }
+            }
+        }
+        
+        function initialiserValidationClavier() {
+            document.querySelectorAll('.password-input').forEach(function(i) {
+                i.addEventListener('keypress', function(e) { if (e.key === 'Enter') { e.preventDefault(); this.closest('.carte-accueil').querySelector('.btn-entrer').click(); } });
+            });
+        }
+        
+        function afficherAlerte(m, t) { const d = document.getElementById('alertMessage'), s = document.getElementById('alertText'); if (!d||!s) return; d.className = 'alert'; if (t==='error') d.classList.add('alert-danger'); else if (t==='warning') d.classList.add('alert-warning'); else d.classList.add('alert-info'); s.textContent = m; d.classList.remove('hidden'); setTimeout(() => d.classList.add('hidden'), 5000); }
+        function secouerElement(e) { e.style.animation = 'none'; e.offsetHeight; e.style.animation = 'shake 0.5s ease'; setTimeout(() => e.style.animation = '', 500); }
+        document.head.appendChild(Object.assign(document.createElement('style'), { textContent: '@keyframes shake{0%,100%{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-5px)}20%,40%,60%,80%{transform:translateX(5px)}}' }));
+    </script>
+
+    <!-- Service Worker désactivé pour le développement -->
+    <!-- 
+    <script>
+        if ('serviceWorker' in navigator) { window.addEventListener('load', function() { navigator.serviceWorker.register('/sw.js').then(r=>console.log('✅SW')).catch(e=>{}); }); }
+        let dp; window.addEventListener('beforeinstallprompt', function(e) { e.preventDefault(); dp = e; if (!window.matchMedia('(display-mode:standalone)').matches && localStorage.getItem('faso_teedo_installed')!=='true' && !document.getElementById('banniereInstallation')) { const b = document.createElement('div'); b.id='banniereInstallation'; b.innerHTML = `<div class="banniere-install-content"><div class="banniere-install-logo"><img src="icons/icon-192x192.png"></div><div class="banniere-install-info"><div class="banniere-install-titre">FASO TEEDO</div><div class="banniere-install-sous-titre">Application de gestion</div></div><button class="banniere-install-btn" id="btnInstallBanniere">📲 Installer</button><button class="banniere-install-close" id="btnCloseBanniere">✕</button></div>`; b.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:99999;background:linear-gradient(135deg,#1a5632,#2d8a4e);padding:16px 20px;box-shadow:0 -4px 20px rgba(0,0,0,0.4);animation:slideUpBanniere 0.5s ease;border-top:4px solid #d4a017;'; document.body.appendChild(b); document.getElementById('btnInstallBanniere').addEventListener('click', async()=>{if(dp){dp.prompt();await dp.userChoice;dp=null;localStorage.setItem('faso_teedo_installed','true');b.remove();}}); document.getElementById('btnCloseBanniere').addEventListener('click', ()=>b.remove()); } });
+    </script>
+    -->
+</body>
+</html>

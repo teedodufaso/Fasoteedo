@@ -1,0 +1,344 @@
+/* =============================================
+   FASO TEEDO - STYLES ADMINISTRATION
+   ============================================= */
+
+/* Conteneur principal */
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+/* Navigation rapide */
+.nav-rapide {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+}
+
+.nav-rapide .nav-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 0.6rem 0.75rem;
+    border: 2px solid #e0d5c1;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    text-align: center;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+}
+
+.nav-rapide .nav-btn:hover {
+    border-color: #1a5632;
+    background: #f0f7f3;
+    color: #1a5632;
+}
+
+.nav-rapide .nav-btn.actif {
+    background: #1a5632;
+    color: white;
+    border-color: #1a5632;
+}
+
+/* Onglets */
+.tabs-nav {
+    position: sticky;
+    top: 60px;
+    background: #f5f0e8;
+    z-index: 90;
+    padding-top: 0.5rem;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tabs-nav .tab-button {
+    display: inline-block;
+}
+
+/* Sections de formulaire */
+.form-section {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 1px solid #e0d5c1;
+}
+
+.form-section h3 {
+    border-bottom: 2px solid #e0d5c1;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.25rem;
+    color: #1a5632;
+}
+
+/* Aperçu des images */
+.upload-preview {
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #c4940a;
+    margin: 0.5rem auto;
+    display: block;
+    background: #f0f0f0;
+}
+
+.upload-preview-rect {
+    width: 100%;
+    max-width: 300px;
+    height: 100px;
+    object-fit: contain;
+    border: 2px dashed #e0d5c1;
+    border-radius: 8px;
+    margin: 0.5rem auto;
+    display: block;
+    background: #f9f9f9;
+}
+
+/* Liste des employés */
+.liste-employes-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid #e0d5c1;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    background: white;
+    transition: all 0.2s;
+}
+
+.liste-employes-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.liste-employes-item .info {
+    flex: 1;
+}
+
+.liste-employes-item .actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Total calculé */
+.total-calcule {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1a5632;
+    text-align: right;
+    padding: 0.5rem;
+    background: #f0f7f3;
+    border-radius: 8px;
+}
+
+/* Status imprimante */
+.imprimante-status {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.imprimante-status.connectee {
+    background: #d4edda;
+    border: 2px solid #28a745;
+    color: #155724;
+}
+
+.imprimante-status.deconnectee {
+    background: #f8d7da;
+    border: 2px solid #dc3545;
+    color: #721c24;
+}
+
+.imprimante-status.recherche {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    color: #856404;
+}
+
+/* Boutons filtre */
+.filtres-ventes, .filtres-recus, .filtres-histo {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.filtres-ventes input[type="date"],
+.filtres-recus input[type="date"],
+.filtres-histo input[type="date"] {
+    padding: 0.5rem;
+    border: 2px solid #e0d5c1;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+/* Réinitialisation */
+.reset-section {
+    border: 2px solid #e74c3c;
+}
+
+.reset-section h3 {
+    color: #e74c3c;
+    border-bottom-color: #e74c3c;
+}
+
+.reset-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.reset-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: #f9f9f9;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.reset-checkbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #e74c3c;
+}
+
+.btn-reset {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-reset:hover {
+    background: #c0392b;
+}
+
+.btn-restore {
+    background: #2980b9;
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-restore:hover {
+    background: #1a5276;
+}
+
+/* Sauvegarde info */
+.sauvegarde-info {
+    background: #eaf2f8;
+    border: 2px solid #2980b9;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* Délai bar */
+.delai-bar {
+    width: 100%;
+    height: 8px;
+    background: #eee;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+}
+
+.delai-bar-fill {
+    height: 100%;
+    background: #e74c3c;
+    border-radius: 4px;
+    transition: width 0.1s linear;
+}
+
+/* Bouton suppression image */
+.btn-supprimer-image {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+    transition: all 0.2s;
+}
+
+.btn-supprimer-image:hover {
+    background: #c0392b;
+    transform: scale(1.02);
+}
+
+.preview-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .liste-employes-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    .liste-employes-item .actions {
+        justify-content: center;
+    }
+    .tabs-nav {
+        top: 55px;
+    }
+    .nav-rapide {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+    .nav-rapide .nav-btn {
+        flex: 0 0 auto;
+        font-size: 0.75rem;
+        padding: 0.5rem;
+    }
+    .reset-checkboxes {
+        grid-template-columns: 1fr 1fr;
+    }
+    .upload-preview {
+        width: 180px;
+        height: 180px;
+    }
+    .photo-employe-petit {
+        width: 80px;
+        height: 80px;
+    }
+}

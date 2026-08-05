@@ -1,0 +1,280 @@
+/* =============================================
+   FASO TEEDO - STYLES POINTAGE
+   ============================================= */
+
+/* Cartes employés */
+.carte-employe {
+    transition: all 0.3s ease;
+    animation: fadeIn 0.5s ease;
+}
+
+.carte-employe.pointe {
+    position: relative;
+    overflow: hidden;
+}
+
+.carte-employe.pointe::after {
+    content: '✓';
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.5rem;
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.carte-employe .statut-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+.carte-employe .statut-badge.attente {
+    background: #fdebd0;
+    color: #e67e22;
+}
+
+.carte-employe .statut-badge.fait {
+    background: #d5f5e3;
+    color: #27ae60;
+}
+
+/* Navigation rapide */
+.nav-rapide {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin: 0.5rem 1rem;
+}
+
+.nav-rapide .nav-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 0.6rem 0.75rem;
+    border: 2px solid #e0d5c1;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    text-align: center;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+}
+
+.nav-rapide .nav-btn:hover {
+    border-color: #1a5632;
+    background: #f0f7f3;
+    color: #1a5632;
+}
+
+.nav-rapide .nav-btn.actif {
+    background: #1a5632;
+    color: white;
+    border-color: #1a5632;
+}
+
+/* Modal signature */
+.signature-modal .modal {
+    max-width: 500px;
+}
+
+.signature-pad-container {
+    border: 3px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+    margin-bottom: 1rem;
+}
+
+.signature-pad-container canvas {
+    display: block;
+    width: 100%;
+    height: 250px;
+    cursor: crosshair;
+    touch-action: none;
+}
+
+/* Grille employés */
+.grille-employes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+}
+
+/* Photos */
+.photo-employe {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #c4940a;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    background: #f0f0f0;
+}
+
+.photo-employe-large {
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #c4940a;
+}
+
+/* Bannière travail */
+.banniere-travail {
+    background: linear-gradient(135deg, #1a5632, #2d8a4e);
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.banniere-travail .type-travail {
+    font-size: 1.3rem;
+    display: block;
+}
+
+.banniere-travail.non-defini {
+    background: linear-gradient(135deg, #e67e22, #c0392b);
+    animation: pulse 2s infinite;
+}
+
+/* Résumé config */
+.resume-config {
+    background: #f0f7f3;
+    border: 2px solid #1a5632;
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+/* Onglets pointage */
+.tabs-pointage {
+    display: flex;
+    gap: 0;
+    border-bottom: 3px solid #e0d5c1;
+    margin: 0 1rem;
+    overflow-x: auto;
+}
+
+.tabs-pointage .tab-btn {
+    flex: 1;
+    min-width: 100px;
+    padding: 0.75rem 0.5rem;
+    border: none;
+    background: #f9f9f9;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    white-space: nowrap;
+    color: #666;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -3px;
+}
+
+.tabs-pointage .tab-btn.active {
+    background: white;
+    color: #1a5632;
+    border-bottom-color: #1a5632;
+}
+
+/* Contenu des onglets */
+.tab-content-pointage {
+    display: none;
+    padding: 1rem;
+}
+
+.tab-content-pointage.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Sections formulaire */
+.form-section {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+.form-section h3 {
+    color: #1a5632;
+    border-bottom: 2px solid #e0d5c1;
+    padding-bottom: 0.5rem;
+}
+
+/* Groupes */
+.groupe-box {
+    border: 2px solid #1a5632;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: #f0f7f3;
+}
+
+.groupe-box.groupe2 {
+    border-color: #f39c12;
+    background: #fef9e7;
+}
+
+/* Container groupes */
+#configDiviserGroupesContainer {
+    display: none;
+}
+
+/* Liste des départs */
+.depart-list-container {
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0.5rem;
+    background: white;
+    margin-top: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .grille-employes {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        padding: 0.75rem;
+    }
+    .photo-employe {
+        width: 120px;
+        height: 120px;
+    }
+    .nav-rapide {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+    .nav-rapide .nav-btn {
+        flex: 0 0 auto;
+        font-size: 0.75rem;
+        padding: 0.5rem;
+    }
+    .tabs-pointage .tab-btn {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.3rem;
+    }
+}

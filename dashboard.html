@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FASO TEEDO - Tableau de bord">
+    <meta name="theme-color" content="#1a5632">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FASO TEEDO">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="manifest" href="manifest.json">
+    <title>FASO TEEDO - Tableau de bord</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        .dashboard-container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+        .nav-rapide { display: flex; gap: 0.5rem; flex-wrap: wrap; padding: 0.75rem; background: white; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 1rem; }
+        .nav-rapide .nav-btn { flex: 1; min-width: 80px; padding: 0.6rem 0.75rem; border: 2px solid #e0d5c1; border-radius: 8px; background: white; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s; text-align: center; color: #1a1a1a; display: flex; align-items: center; justify-content: center; gap: 0.3rem; }
+        .nav-rapide .nav-btn:hover { border-color: #1a5632; background: #f0f7f3; color: #1a5632; }
+        .nav-rapide .nav-btn.actif { background: #1a5632; color: white; border-color: #1a5632; }
+        .periode-section { background: white; border-radius: 16px; padding: 1rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
+        .periode-selector { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+        .periode-btn { flex: 1; min-width: 80px; padding: 0.6rem 0.4rem; border: 2px solid #e0d5c1; border-radius: 8px; background: white; cursor: pointer; font-weight: 600; font-size: 0.8rem; transition: all 0.2s; white-space: nowrap; text-align: center; }
+        .periode-btn.active { background: #1a5632; color: white; border-color: #1a5632; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card { background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 5px solid #1a5632; transition: all 0.3s; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+        .stat-card .stat-valeur { font-size: 1.8rem; font-weight: 700; }
+        .stat-card .stat-label { color: #666; font-size: 0.9rem; font-weight: 600; }
+        .stat-card.ventes { border-left-color: #27ae60; } .stat-card.ventes .stat-valeur { color: #27ae60; }
+        .stat-card.salaires { border-left-color: #e74c3c; } .stat-card.salaires .stat-valeur { color: #e74c3c; }
+        .stat-card.inventaire { border-left-color: #f39c12; } .stat-card.inventaire .stat-valeur { color: #f39c12; }
+        .stat-card.difference { border-left-color: #2980b9; } .stat-card.difference .stat-valeur { color: #2980b9; }
+        .chart-container { background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
+        .chart-container h3 { margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e0d5c1; }
+        .chart-container canvas { width: 100% !important; max-height: 350px; }
+        .details-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .detail-card { background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .detail-card h4 { margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e0d5c1; }
+        .detail-liste { list-style: none; padding: 0; margin: 0; }
+        .detail-liste li { padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0; }
+        .detail-liste li:last-child { border-bottom: none; }
+        @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; } .stat-card { padding: 1rem; } .stat-card .stat-valeur { font-size: 1.3rem; } .details-grid { grid-template-columns: 1fr; } .nav-rapide { flex-wrap: nowrap; overflow-x: auto; } .nav-rapide .nav-btn { flex: 0 0 auto; font-size: 0.75rem; padding: 0.5rem; } }
+    </style>
+</head>
+<body>
+    <header class="header-app">
+        <button class="btn-retour" onclick="window.location.href='index.html'">← Retour</button>
+        <h1>Tableau de bord</h1>
+        <div style="width:44px;"></div>
+    </header>
+
+    <div class="dashboard-container">
+        <div class="nav-rapide">
+            <button class="nav-btn" onclick="window.location.href='admin.html'">⚙️ Admin</button>
+            <button class="nav-btn" onclick="window.location.href='pointage.html'">📋 Pointage</button>
+            <button class="nav-btn" onclick="window.location.href='ventes.html'">💰 Ventes</button>
+            <button class="nav-btn actif">📊 Dashboard</button>
+        </div>
+
+        <div class="periode-section">
+            <div class="periode-selector">
+                <button class="periode-btn active" data-periode="today">📅 Aujourd'hui</button>
+                <button class="periode-btn" data-periode="yesterday">⬅️ Hier</button>
+                <button class="periode-btn" data-periode="week">📆 Semaine</button>
+                <button class="periode-btn" data-periode="month">🗓️ Mois</button>
+                <button class="periode-btn" data-periode="year">📊 Année</button>
+            </div>
+            <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;padding-top:0.75rem;border-top:2px solid #e0d5c1;">
+                <label>📅 Du :</label><input type="date" id="filtreDateDebutDash" style="padding:0.6rem;border:2px solid #e0d5c1;border-radius:4px;">
+                <label>Au :</label><input type="date" id="filtreDateFinDash" style="padding:0.6rem;border:2px solid #e0d5c1;border-radius:4px;">
+                <button id="btnFiltrerDatesDash" style="padding:0.6rem 1.25rem;background:#1a5632;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:600;">🔍 Rechercher</button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card ventes"><div style="font-size:2rem;">💰</div><div class="stat-valeur" id="statVentes">- FCFA</div><div class="stat-label">Total des ventes</div></div>
+            <div class="stat-card salaires"><div style="font-size:2rem;">👷</div><div class="stat-valeur" id="statSalaires">- FCFA</div><div class="stat-label">Total salaires</div></div>
+            <div class="stat-card inventaire"><div style="font-size:2rem;">📦</div><div class="stat-valeur" id="statInventaire">- FCFA</div><div class="stat-label">Stock inventaire</div></div>
+            <div class="stat-card difference" id="carteDifference"><div style="font-size:2rem;">📈</div><div class="stat-valeur" id="statDifference">- FCFA</div><div class="stat-label">Bénéfice net</div></div>
+        </div>
+
+        <div class="chart-container"><h3>📈 Évolution</h3><canvas id="chartEvolution"></canvas></div>
+
+        <div class="details-grid">
+            <div class="detail-card"><h4>🏪 Ventes par produit</h4><div id="ventesParProduit"><p style="color:#999;">Chargement...</p></div></div>
+            <div class="detail-card"><h4>📦 Stock inventaire</h4><div id="inventaireDetail"><p style="color:#999;">Chargement...</p></div></div>
+            <div class="detail-card"><h4>⭐ Top 5 clients</h4><div id="topClients"><p style="color:#999;">Chargement...</p></div></div>
+        </div>
+
+        <div class="chart-container"><h3>📋 20 dernières ventes</h3><div id="dernieresVentes"><div class="loader"><div class="spinner"></div><span>Chargement...</span></div></div></div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth-check.js"></script>
+    <script src="js/dashboard.js"></script>
+
+    <script>
+        if ('serviceWorker' in navigator) { window.addEventListener('load', function() { navigator.serviceWorker.register('/sw.js').then(r=>console.log('✅SW')).catch(e=>{}); }); }
+        let dp; window.addEventListener('beforeinstallprompt', function(e) { e.preventDefault(); dp = e; if (!window.matchMedia('(display-mode:standalone)').matches && localStorage.getItem('faso_teedo_installed')!=='true' && !document.getElementById('banniereInstallation')) { const b = document.createElement('div'); b.id='banniereInstallation'; b.innerHTML = `<div class="banniere-install-content"><div class="banniere-install-logo"><img src="icons/icon-192x192.png"></div><div class="banniere-install-info"><div class="banniere-install-titre">FASO TEEDO</div><div class="banniere-install-sous-titre">Application de gestion</div></div><button class="banniere-install-btn" id="btnInstallBanniere">📲 Installer</button><button class="banniere-install-close" id="btnCloseBanniere">✕</button></div>`; b.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:99999;background:linear-gradient(135deg,#1a5632,#2d8a4e);padding:16px 20px;box-shadow:0 -4px 20px rgba(0,0,0,0.4);animation:slideUpBanniere 0.5s ease;border-top:4px solid #d4a017;'; document.body.appendChild(b); document.getElementById('btnInstallBanniere').addEventListener('click', async()=>{if(dp){dp.prompt();await dp.userChoice;dp=null;localStorage.setItem('faso_teedo_installed','true');b.remove();}}); document.getElementById('btnCloseBanniere').addEventListener('click', ()=>b.remove()); } });
+    </script>
+</body>
+</html>

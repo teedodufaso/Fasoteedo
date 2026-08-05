@@ -1,0 +1,29 @@
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Fichiers de log
+*.log
+npm-debug.log*
+
+# Dossiers de dépendances
+node_modules/
+
+# Fichiers de configuration utilisateur
+.env
+*.local
+
+# Fichiers temporaires
+*.tmp
+*.temp
+tmp/
+temp/
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Sauvegardes
+*.bak
+*.backup

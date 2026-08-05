@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FASO TEEDO - Administration">
+    <meta name="theme-color" content="#1a5632">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FASO TEEDO">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="manifest" href="manifest.json">
+    <title>FASO TEEDO - Administration</title>
+    
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        .admin-container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+        
+        .nav-rapide {
+            display: flex; gap: 0.5rem; flex-wrap: wrap; padding: 0.75rem;
+            background: white; border-radius: var(--bordure-radius-lg);
+            box-shadow: var(--ombre-carte); margin-bottom: 1rem;
+        }
+        .nav-rapide .nav-btn {
+            flex: 1; min-width: 100px; padding: 0.6rem 0.75rem;
+            border: 2px solid var(--couleur-bordure); border-radius: var(--bordure-radius-md);
+            background: white; cursor: pointer; font-weight: 600; font-size: 0.85rem;
+            transition: all var(--transition-rapide); text-align: center; color: var(--couleur-texte);
+            display: flex; align-items: center; justify-content: center; gap: 0.3rem;
+        }
+        .nav-rapide .nav-btn:hover { border-color: var(--couleur-primaire); background: #f0f7f3; color: var(--couleur-primaire); }
+        .nav-rapide .nav-btn.actif { background: var(--couleur-primaire); color: white; border-color: var(--couleur-primaire); }
+        
+        .tabs-nav {
+            position: sticky; top: 60px; background: var(--couleur-fond); z-index: 90;
+            padding-top: 0.5rem; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;
+        }
+        .tabs-nav .tab-button { display: inline-block; }
+        
+        .form-section {
+            background: white; border-radius: var(--bordure-radius-lg); padding: 1.5rem;
+            margin-bottom: 1.5rem; box-shadow: var(--ombre-carte); border: 1px solid var(--couleur-bordure);
+        }
+        .form-section h3 { border-bottom: 2px solid var(--couleur-bordure); padding-bottom: 0.75rem; margin-bottom: 1.25rem; color: var(--couleur-primaire); }
+        
+        .upload-preview {
+            width: 240px; height: 240px; border-radius: 50%; object-fit: cover;
+            border: 3px solid var(--couleur-dore); margin: 0.5rem auto; display: block; background: #f0f0f0;
+        }
+        
+        .photo-employe-petit {
+            width: 100px; height: 100px; border-radius: 50%; object-fit: cover;
+            border: 3px solid var(--couleur-dore); box-shadow: 0 2px 8px rgba(0,0,0,0.15); background: #f0f0f0;
+        }
+        
+        .upload-preview-rect {
+            width: 100%; max-width: 300px; height: 100px; object-fit: contain;
+            border: 2px dashed var(--couleur-bordure); border-radius: var(--bordure-radius-md);
+            margin: 0.5rem auto; display: block; background: #f9f9f9;
+        }
+        
+        .liste-employes-item {
+            display: flex; align-items: center; gap: 1rem; padding: 1rem;
+            border: 1px solid var(--couleur-bordure); border-radius: var(--bordure-radius-md);
+            margin-bottom: 0.75rem; background: white; transition: all var(--transition-rapide);
+        }
+        .liste-employes-item:hover { box-shadow: var(--ombre-carte); }
+        .liste-employes-item .info { flex: 1; }
+        .liste-employes-item .actions { display: flex; gap: 0.5rem; }
+        
+        .total-calcule { font-size: 1.2rem; font-weight: 700; color: var(--couleur-primaire); text-align: right; padding: 0.5rem; background: #f0f7f3; border-radius: var(--bordure-radius-sm); }
+        
+        .alerte-type-travail { background: #fff3cd; border: 2px solid #ffc107; border-radius: var(--bordure-radius-md); padding: 1rem; margin-bottom: 1rem; animation: pulse 2s infinite; }
+        
+        .imprimante-status { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; border-radius: var(--bordure-radius-md); margin-bottom: 1rem; }
+        .imprimante-status.connectee { background: #d4edda; border: 2px solid #28a745; color: #155724; }
+        .imprimante-status.deconnectee { background: #f8d7da; border: 2px solid #dc3545; color: #721c24; }
+        .imprimante-status.recherche { background: #fff3cd; border: 2px solid #ffc107; color: #856404; }
+        
+        .filtres-ventes, .filtres-recus, .filtres-histo { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
+        .filtres-ventes input[type="date"], .filtres-recus input[type="date"], .filtres-histo input[type="date"] { padding: 0.5rem; border: 2px solid var(--couleur-bordure); border-radius: var(--bordure-radius-sm); font-size: 0.9rem; }
+        
+        .client-cliquable { cursor: pointer; transition: all var(--transition-rapide); }
+        .client-cliquable:hover { background: #f0f7f3; border-radius: var(--bordure-radius-sm); }
+        
+        .reset-section { border: 2px solid #e74c3c; }
+        .reset-section h3 { color: #e74c3c; border-bottom-color: #e74c3c; }
+        .reset-checkboxes { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+        .reset-checkbox { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: #f9f9f9; border-radius: 8px; cursor: pointer; }
+        .reset-checkbox input[type="checkbox"] { width: 20px; height: 20px; accent-color: #e74c3c; }
+        .btn-reset { background: #e74c3c; color: white; border: none; padding: 14px 28px; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; }
+        .btn-reset:hover { background: #c0392b; }
+        .btn-restore { background: #2980b9; color: white; border: none; padding: 14px 28px; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; }
+        .btn-restore:hover { background: #1a5276; }
+        .sauvegarde-info { background: #eaf2f8; border: 2px solid #2980b9; border-radius: 12px; padding: 1rem; margin-bottom: 1rem; }
+        .delai-bar { width: 100%; height: 8px; background: #eee; border-radius: 4px; margin-top: 0.5rem; overflow: hidden; }
+        .delai-bar-fill { height: 100%; background: #e74c3c; border-radius: 4px; transition: width 0.1s linear; }
+        
+        .btn-supprimer-image {
+            background: #e74c3c; color: white; border: none; padding: 0.4rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; margin-top: 0.5rem; transition: all 0.2s;
+        }
+        .btn-supprimer-image:hover { background: #c0392b; transform: scale(1.02); }
+        .preview-actions { display: flex; gap: 0.5rem; align-items: center; justify-content: center; flex-wrap: wrap; margin-top: 0.5rem; }
+        
+        @media (max-width: 768px) {
+            .liste-employes-item { flex-direction: column; text-align: center; }
+            .liste-employes-item .actions { justify-content: center; }
+            .tabs-nav { top: 55px; }
+            .nav-rapide { flex-wrap: nowrap; overflow-x: auto; }
+            .nav-rapide .nav-btn { flex: 0 0 auto; font-size: 0.75rem; padding: 0.5rem; }
+            .reset-checkboxes { grid-template-columns: 1fr 1fr; }
+            .upload-preview { width: 180px; height: 180px; }
+            .photo-employe-petit { width: 80px; height: 80px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header-app">
+        <button class="btn-retour" onclick="window.location.href='index.html'" aria-label="Retour à l'accueil">← Retour</button>
+        <h1>Administration</h1>
+        <div style="width: 44px;"></div>
+    </header>
+
+    <div class="admin-container">
+        <div class="nav-rapide">
+            <button class="nav-btn actif">⚙️ Admin</button>
+            <button class="nav-btn" onclick="window.location.href='pointage.html'">📋 Pointage</button>
+            <button class="nav-btn" onclick="window.location.href='ventes.html'">💰 Ventes</button>
+            <button class="nav-btn" onclick="window.location.href='dashboard.html'">📊 Dashboard</button>
+        </div>
+
+        <nav class="tabs-nav" role="tablist">
+            <button class="tab-button active" data-tab="tab-employes" role="tab" aria-selected="true">👥 Employés</button>
+            <button class="tab-button" data-tab="tab-salaires" role="tab">💰 Salaires</button>
+            <button class="tab-button" data-tab="tab-stock-inventaire" role="tab">📦 Stock Inv.</button>
+            <button class="tab-button" data-tab="tab-stock-vente" role="tab">🏪 Stock Vente</button>
+            <button class="tab-button" data-tab="tab-clients" role="tab">👤 Clients</button>
+            <button class="tab-button" data-tab="tab-ventes-admin" role="tab">🧾 Ventes</button>
+            <button class="tab-button" data-tab="tab-recu" role="tab">📄 Reçus</button>
+            <button class="tab-button" data-tab="tab-config" role="tab">⚙️ Config</button>
+            <button class="tab-button" data-tab="tab-grille" role="tab">📊 Grille</button>
+            <button class="tab-button" data-tab="tab-reset" role="tab">🔄 Réinit.</button>
+        </nav>
+
+        <!-- ==================== ONGLET 1 : EMPLOYÉS ==================== -->
+        <div class="tab-content active" id="tab-employes" role="tabpanel">
+            <div class="form-section"><h3>➕ Ajouter un employé</h3>
+                <form id="formAjoutEmploye" onsubmit="return false;">
+                    <div class="form-group"><label for="employeNom">Nom complet *</label><input type="text" id="employeNom" class="form-control" placeholder="Entrez le nom complet" required maxlength="100"></div>
+                    <div class="form-group"><label for="employePhoto">Photo (max 5 Mo)</label><input type="file" id="employePhoto" class="form-control-file" accept="image/jpeg,image/png,image/webp"><small style="color:#666;">JPG, PNG, WEBP - Taille max : 5 Mo</small></div>
+                    <div id="previewPhotoEmploye" style="text-align:center;display:none;"><img id="previewImageEmploye" class="upload-preview" src="" alt="Aperçu"></div>
+                    <button type="button" class="btn btn-primaire btn-block" id="btnAjouterEmploye">Ajouter l'employé</button>
+                </form>
+            </div>
+            <div class="form-section"><h3>📋 Liste des employés</h3><div id="listeEmployes"><div class="loader"><div class="spinner"></div><span>Chargement...</span></div></div></div>
+        </div>
+
+        <!-- ==================== ONGLET 2 : SALAIRES ==================== -->
+        <div class="tab-content" id="tab-salaires" role="tabpanel">
+            <div class="form-section"><h3>💰 Calcul des salaires (individuel)</h3>
+                <div id="tableauSalaires"><div class="loader"><div class="spinner"></div><span>Calcul des salaires...</span></div></div>
+            </div>
+        </div>
+
+        <!-- ==================== ONGLET 3 : STOCK INVENTAIRE ==================== -->
+        <div class="tab-content" id="tab-stock-inventaire" role="tabpanel">
+            <div class="form-section"><h3>➕ Ajouter au stock inventaire</h3>
+                <form id="formAjoutStock" onsubmit="return false;">
+                    <div class="form-group"><label for="stockNom">Nom du produit *</label><input type="text" id="stockNom" class="form-control" placeholder="Ex: Sucre, Huile..." required></div>
+                    <div class="form-group"><label for="stockUnite">Unité de mesure</label><select id="stockUnite" class="form-control"><option value="kg">Kilogramme</option><option value="litre">Litre</option><option value="paquet">Paquet</option><option value="bidon">Bidon</option><option value="sachet">Sachet</option><option value="nombre">Nombre</option><option value="boite">Boîte</option></select></div>
+                    <div class="form-group"><label for="stockQuantite">Quantité *</label><input type="number" id="stockQuantite" class="form-control" placeholder="0" step="0.01" min="0" required></div>
+                    <div class="form-group"><label for="stockPrixUnitaire">Prix unitaire (FCFA) *</label><input type="number" id="stockPrixUnitaire" class="form-control" placeholder="0" step="0.01" min="0" required></div>
+                    <div class="total-calcule" id="totalStock">Total : 0 FCFA</div>
+                    <button type="button" class="btn btn-primaire btn-block mt-2" id="btnAjouterStock">Ajouter au stock</button>
+                </form>
+            </div>
+            <div class="form-section"><h3>📦 Produits en stock</h3><div id="listeStockInventaire"><div class="loader"><div class="spinner"></div><span>Chargement...</span></div></div></div>
+        </div>
+
+        <!-- ==================== ONGLET 4 : STOCK VENTE ==================== -->
+        <div class="tab-content" id="tab-stock-vente" role="tabpanel">
+            <div class="form-section"><h3>➕ Ajouter du stock vente</h3>
+                <form id="formAjoutStockVente" onsubmit="return false;">
+                    <div class="form-group"><label for="svTypeProduit">Produit *</label><select id="svTypeProduit" class="form-control" required><option value="">Sélectionnez</option><option value="caramel_simple">Caramel Simple</option><option value="caramel_gingembre">Caramel Gingembre</option><option value="morceaux">Morceaux (Casée) - kg</option><option value="farine_kilo">Farine (Kilo)</option></select></div>
+                    <div class="form-group"><label for="svQuantite">Quantité à ajouter *</label><input type="number" id="svQuantite" class="form-control" placeholder="0" step="0.01" min="0.01" required></div>
+                    <div class="form-group"><label for="svPrixUnitaire">Prix unitaire (FCFA)</label><input type="number" id="svPrixUnitaire" class="form-control" placeholder="0" step="1" min="0"></div>
+                    <div class="total-calcule" id="svTotal">Total : 0 FCFA</div>
+                    <button type="button" class="btn btn-primaire btn-block mt-2" id="btnAjouterStockVente">Ajouter au stock</button>
+                </form>
+            </div>
+            <div class="form-section"><h3>🏪 Stock actuel</h3><div id="tableauStockVente"><div class="loader"><div class="spinner"></div><span>Chargement...</span></div></div></div>
+            <div class="form-section"><h3>📋 Historique des mouvements</h3>
+                <div class="filtres-histo">
+                    <button class="btn btn-outline btn-sm filtre-histo-btn active" data-filtre="today">Aujourd'hui</button>
+                    <button class="btn btn-outline btn-sm filtre-histo-btn" data-filtre="yesterday">Hier</button>
+                    <button class="btn btn-outline btn-sm filtre-histo-btn" data-filtre="all">Tout</button>
+                    <span style="margin:0 0.5rem;">ou</span>
+                    <input type="date" id="histoDateDebut" class="form-control" style="width:auto;display:inline-block;" title="Date début">
+                    <span>à</span>
+                    <input type="date" id="histoDateFin" class="form-control" style="width:auto;display:inline-block;" title="Date fin">
+                    <button class="btn btn-primaire btn-sm" id="btnFiltrerHistoDate">Filtrer</button>
+                </div>
+                <div id="historiqueStockVente"><div class="loader"><div class="spinner"></div><span>Chargement...</span></div></div>
+            </div>
+        </div>
+
+        <!-- ==================== ONGLET 5 : CLIENTS ==================== -->
+        <div class="tab-content" id="tab-clients" role="tabpanel">
+            <div class="form-section"><h3>➕ Ajouter un client fidèle</h3>
+                <form id="formAjoutClient" onsubmit="return false;">
+                    <div class="form-group"><label for="clientNom">Nom complet *</label><input type="text" id="clientNom" class="form-control" placeholder="Nom du client" required></div>
+                    <div class="form-group"><label for="clientTelephone">Téléphone</label><input type="tel" id="clientTelephone" class="form-control" placeholder="Ex: 70123456"></div>
+                    <h4 style="margin-top:1.5rem;">💎 Prix spéciaux (optionnels)</h4>
+                    <p style="color:#666;font-size:0.85rem;">Laissez vide pour utiliser les prix publics</p>
+                    <div class="form-group"><label>Caramel Simple</label><input type="number" id="prixCaramelSimple" class="form-control" placeholder="Prix unitaire" step="1" min="0"><small>Lot : <input type="number" id="lotCaramelSimple" placeholder="Qté" style="width:70px;display:inline;" min="0"> pour <input type="number" id="prixLotCaramelSimple" placeholder="Prix total" style="width:120px;display:inline;" min="0"> FCFA</small></div>
+                    <div class="form-group"><label>Caramel Gingembre</label><input type="number" id="prixCaramelGingembre" class="form-control" placeholder="Prix unitaire" step="1" min="0"><small>Lot : <input type="number" id="lotCaramelGingembre" placeholder="Qté" style="width:70px;display:inline;" min="0"> pour <input type="number" id="prixLotCaramelGingembre" placeholder="Prix total" style="width:120px;display:inline;" min="0"> FCFA</small></div>
+                    <div class="form-group"><label>Morceaux (Casée) - kg</label><input type="number" id="prixMorceaux" class="form-control" placeholder="Prix unitaire" step="1" min="0"><small>Lot : <input type="number" id="lotMorceaux" placeholder="Qté" style="width:70px;display:inline;" min="0"> pour <input type="number" id="prixLotMorceaux" placeholder="Prix total" style="width:120px;display:inline;" min="0"> FCFA</small></div>
+                    <div class="form-group"><label>Farine (Kilo)</label><input type="number" id="prixFarineKilo" class="form-control" placeholder="Prix unitaire" step="1" min="0"><small>Lot : <input type="number" id="lotFarineKilo" placeholder="Qté" style="width:70px;display:inline;" min="0"> pour <input type="number" id="prixLotFarineKilo" placeholder="Prix total" style="width:120px;display:inline;" min="0"> FCFA</small></div>
+                    <button type="button" class="btn btn-primaire btn-block mt-2" id="btnAjouterClient">Ajouter le client</button>
+                </form>
+            </div>
+            <div class="form-section"><h3>👥 Liste des clients</h3><div id="listeClients"><div class="loader"><div class="spinner"></div><span>Chargement...</span></div></div></div>
+        </div>
+
+        <!-- ==================== ONGLET 6 : VENTES (ADMIN) ==================== -->
+        <div class="tab-content" id="tab-ventes-admin" role="tabpanel">
+            <div class="form-section"><h3>🧾 Historique des ventes</h3>
+                <div class="filtres-ventes">
+                    <button class="btn btn-outline btn-sm filtre-vente-btn active" data-filtre="today">Aujourd'hui</button>
+                    <button class="btn btn-outline btn-sm filtre-vente-btn" data-filtre="yesterday">Hier</button>
+                    <button class="btn btn-outline btn-sm filtre-vente-btn" data-filtre="all">Toutes</button>
+                    <span style="margin:0 0.5rem;">ou</span>
+                    <input type="date" id="filtreDateDebut" class="form-control" style="width:auto;display:inline-block;" title="Date début">
+                    <span>à</span>
+                    <input type="date" id="filtreDateFin" class="form-control" style="width:auto;display:inline-block;" title="Date fin">
+                    <button class="btn btn-primaire btn-sm" id="btnFiltrerDate">Filtrer</button>
+                </div>
+                <div id="tableauVentesAdmin"><div class="loader"><div class="spinner"></div><span>Chargement...</span></div></div>
+            </div>
+        </div>
+
+        <!-- ==================== ONGLET 7 : REÇUS ==================== -->
+        <div class="tab-content" id="tab-recu" role="tabpanel">
+            <div class="form-section"><h3>📄 Historique des tickets et reçus</h3>
+                <p style="color:#666;margin-bottom:1rem;">Consultez, réimprimez ou annulez les tickets de vente</p>
+                <div class="filtres-recus">
+                    <button class="btn btn-outline btn-sm filtre-recu-btn active" data-filtre="today">Aujourd'hui</button>
+                    <button class="btn btn-outline btn-sm filtre-recu-btn" data-filtre="yesterday">Hier</button>
+                    <button class="btn btn-outline btn-sm filtre-recu-btn" data-filtre="all">Toutes</button>
+                    <span style="margin:0 0.5rem;">ou</span>
+                    <input type="date" id="recuDateDebut" class="form-control" style="width:auto;display:inline-block;" title="Date début">
+                    <span>à</span>
+                    <input type="date" id="recuDateFin" class="form-control" style="width:auto;display:inline-block;" title="Date fin">
+                    <button class="btn btn-primaire btn-sm" id="btnFiltrerRecuDate">Filtrer</button>
+                </div>
+                <div id="tableauRecus"><div class="loader"><div class="spinner"></div><span>Chargement...</span></div></div>
+            </div>
+        </div>
+
+        <!-- ==================== ONGLET 8 : CONFIGURATION AVEC APERÇU ==================== -->
+        <div class="tab-content" id="tab-config" role="tabpanel">
+            <form id="formConfiguration" onsubmit="return false;">
+                <div class="form-section"><h3>🏢 Informations de l'entreprise</h3>
+                    <div class="form-group"><label for="configEntrepriseNom">Nom de l'entreprise</label><input type="text" id="configEntrepriseNom" class="form-control"></div>
+                    <div class="form-group"><label for="configEntrepriseTelephone">Téléphone</label><input type="tel" id="configEntrepriseTelephone" class="form-control"></div>
+                    <div class="form-group"><label for="configEntrepriseEmail">Email</label><input type="email" id="configEntrepriseEmail" class="form-control"></div>
+                    <div class="form-group"><label for="configEntrepriseAdresse">Adresse</label><textarea id="configEntrepriseAdresse" class="form-control" rows="2"></textarea></div>
+                    <div class="form-group"><label for="configTicketMessage">Message du ticket</label><input type="text" id="configTicketMessage" class="form-control" placeholder="Merci pour votre achat"></div>
+                    <div class="form-group"><label for="configFooterText">Texte du pied de page</label><input type="text" id="configFooterText" class="form-control" placeholder="© 2024 FASO TEEDO"></div>
+                </div>
+                <div class="form-section"><h3>🔐 Sécurité</h3>
+                    <div class="form-group"><label for="configMotDePasse">Nouveau mot de passe</label><input type="password" id="configMotDePasse" class="form-control" placeholder="Laissez vide pour ne pas changer" autocomplete="new-password"></div>
+                </div>
+                <div class="form-section"><h3>🎨 Personnalisation - APERÇU IMMÉDIAT</h3>
+                    <div class="form-group">
+                        <label for="configLogo">Logo (max 2 Mo)</label>
+                        <input type="file" id="configLogo" class="form-control-file" accept="image/jpeg,image/png,image/svg+xml">
+                        <div id="previewLogo" style="text-align:center;margin-top:0.5rem;">
+                            <img id="previewImageLogo" class="upload-preview-rect" src="" alt="Logo actuel" style="display:none;">
+                            <div class="preview-actions">
+                                <button type="button" class="btn-supprimer-image" id="btnSupprimerLogo" style="display:none;">🗑️ Supprimer le logo</button>
+                            </div>
+                        </div>
+                        <small style="color:#666;">Sélectionnez une image pour voir l'aperçu, puis sauvegardez pour valider</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="configFond">Image de fond (max 5 Mo)</label>
+                        <input type="file" id="configFond" class="form-control-file" accept="image/jpeg,image/png">
+                        <div id="previewFond" style="text-align:center;margin-top:0.5rem;">
+                            <img id="previewImageFond" class="upload-preview-rect" src="" alt="Fond actuel" style="display:none;">
+                            <div class="preview-actions">
+                                <button type="button" class="btn-supprimer-image" id="btnSupprimerFond" style="display:none;">🗑️ Supprimer le fond</button>
+                            </div>
+                        </div>
+                        <small style="color:#666;">Sélectionnez une image pour voir l'aperçu, puis sauvegardez pour valider</small>
+                    </div>
+                </div>
+                <div class="form-section"><h3>📞 Numéros de téléphone</h3>
+                    <div class="form-group" style="display:flex;gap:0.5rem;"><input type="tel" id="configNumero" class="form-control" placeholder="Ajouter un numéro" style="flex:1;"><button type="button" class="btn btn-primaire" id="btnAjouterNumero">Ajouter</button></div>
+                    <div id="listeNumeros" style="margin-top:0.5rem;"></div>
+                </div>
+                <div class="form-section"><h3>🖨️ Imprimante Bluetooth</h3>
+                    <div id="imprimanteStatus" class="imprimante-status deconnectee"><span>🔌</span><span id="imprimanteStatusTexte">Non connectée</span></div>
+                    <button type="button" class="btn btn-primaire btn-block" id="btnRechercherImprimante">🔍 Rechercher</button>
+                    <button type="button" class="btn btn-outline btn-block mt-1 hidden" id="btnDeconnecterImprimante">🔌 Déconnecter</button>
+                    <button type="button" class="btn btn-outline btn-block mt-1" id="btnTesterImpression">🧪 Tester l'impression</button>
+                </div>
+                <button type="button" class="btn btn-primaire btn-block btn-lg" id="btnSauvegarderConfig" style="margin-top:1rem;margin-bottom:2rem;">💾 SAUVEGARDER TOUTES LES MODIFICATIONS</button>
+            </form>
+        </div>
+
+        <!-- ==================== ONGLET 9 : GRILLE DE PRIX ==================== -->
+        <div class="tab-content" id="tab-grille" role="tabpanel">
+            <div class="form-section"><h3>➕ Ajouter une tranche de prix</h3>
+                <form id="formGrillePrix" onsubmit="return false;">
+                    <div class="form-group"><label for="grilleType">Type de travail *</label><select id="grilleType" class="form-control" required><option value="">Sélectionnez</option><option value="fabrication">🏭 Fabrication</option><option value="emballage">📦 Emballage</option></select></div>
+                    <div class="form-group"><label for="grilleMin">Nombre de personnes minimum *</label><input type="number" id="grilleMin" class="form-control" placeholder="Ex: 1" min="1" required></div>
+                    <div class="form-group"><label for="grilleMax">Nombre de personnes maximum *</label><input type="number" id="grilleMax" class="form-control" placeholder="Ex: 3" min="1" required></div>
+                    <div class="form-group"><label for="grillePrix">Prix par personne (FCFA) *</label><input type="number" id="grillePrix" class="form-control" placeholder="Ex: 1750" min="1" required></div>
+                    <button type="button" class="btn btn-primaire btn-block mt-2" id="btnAjouterGrille">Ajouter à la grille</button>
+                </form>
+            </div>
+            <div class="form-section"><h3>📊 Grille de prix actuelle</h3><div id="tableauGrillePrix"><div class="loader"><div class="spinner"></div><span>Chargement...</span></div></div></div>
+        </div>
+
+        <!-- ==================== ONGLET 10 : RÉINITIALISATION ==================== -->
+        <div class="tab-content" id="tab-reset" role="tabpanel">
+            <div class="form-section reset-section">
+                <h3>🔄 Réinitialiser les données</h3>
+                <p style="color:#666;margin-bottom:1rem;">Sélectionnez les tables à réinitialiser :</p>
+                <div class="reset-checkboxes">
+                    <label class="reset-checkbox"><input type="checkbox" class="reset-cb" data-table="employes" checked> 👥 Employés</label>
+                    <label class="reset-checkbox"><input type="checkbox" class="reset-cb" data-table="pointages" checked> 📋 Pointages</label>
+                    <label class="reset-checkbox"><input type="checkbox" class="reset-cb" data-table="config_journee"> 📅 Config Journée</label>
+                    <label class="reset-checkbox"><input type="checkbox" class="reset-cb" data-table="stock_inventaire" checked> 📦 Stock Inventaire</label>
+                    <label class="reset-checkbox"><input type="checkbox" class="reset-cb" data-table="stock_vente" checked> 🏪 Stock Vente</label>
+                    <label class="reset-checkbox"><input type="checkbox" class="reset-cb" data-table="clients" checked> 👤 Clients</label>
+                    <label class="reset-checkbox"><input type="checkbox" class="reset-cb" data-table="clients_prix" checked> 💎 Clients Prix</label>
+                    <label class="reset-checkbox"><input type="checkbox" class="reset-cb" data-table="ventes" checked> 🧾 Ventes</label>
+                    <label class="reset-checkbox"><input type="checkbox" class="reset-cb" data-table="achats" checked> 💸 Achats</label>
+                    <label class="reset-checkbox"><input type="checkbox" class="reset-cb" data-table="grille_prix"> 📊 Grille Prix</label>
+                    <label class="reset-checkbox"><input type="checkbox" class="reset-cb" data-table="historique_stock_vente" checked> 📋 Hist. Stock</label>
+                    <label class="reset-checkbox"><input type="checkbox" class="reset-cb" data-table="sauvegardes" checked> 💾 Sauvegardes</label>
+                    <label class="reset-checkbox"><input type="checkbox" class="reset-cb" data-table="numeros_entreprise" checked> 📞 Numéros</label>
+                </div>
+                <button class="btn-reset btn-block" id="btnLancerReset">🔄 Lancer la réinitialisation</button>
+                <div id="resetSteps" class="hidden" style="margin-top:1rem;">
+                    <div id="resetStep1"><div class="form-group"><label>Mot de passe administrateur</label><input type="password" id="resetMdp" class="form-control" placeholder="Mot de passe"></div><button class="btn btn-primaire btn-block" id="btnResetStep1">Valider</button></div>
+                    <div id="resetStep2" class="hidden"><p style="color:#e74c3c;font-weight:700;">⚠️ Écrivez exactement : <strong>Réinitialiser Teedo_du_faso</strong></p><div class="form-group"><input type="text" id="resetTexte" class="form-control" placeholder="Écrivez ici..."></div><button class="btn btn-primaire btn-block" id="btnResetStep2">Valider</button></div>
+                    <div id="resetStep3" class="hidden"><div class="sauvegarde-info"><strong>💾 Sauvegarde automatique</strong><br>Une sauvegarde sera créée avec la date et l'heure avant suppression.</div><p style="color:#e74c3c;font-weight:700;text-align:center;">⚠️ Cette action est IRRÉVERSIBLE !</p><p style="text-align:center;">Suppression dans <strong id="resetDelai">15</strong> secondes...</p><div class="delai-bar"><div class="delai-bar-fill" id="resetDelaiBar" style="width:100%;"></div></div><div style="display:flex;gap:0.5rem;margin-top:0.5rem;"><button class="btn btn-danger btn-block" id="btnResetStep3">✅ Confirmer la suppression</button><button class="btn btn-secondaire btn-block" id="btnResetAnnuler">❌ ANNULER</button></div></div>
+                </div>
+            </div>
+            <div class="form-section"><h3>🔄 Restaurer les données</h3>
+                <div id="restoreInfo"><p style="color:#666;">Chargement...</p></div>
+                <button class="btn-restore btn-block hidden" id="btnRestaurer">📥 Restaurer la dernière sauvegarde</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal modification employé -->
+    <div id="modalModifierEmploye" class="modal-overlay hidden">
+        <div class="modal"><div class="modal-header"><h3>✏️ Modifier l'employé</h3><button class="modal-close" onclick="fermerModalModifierEmploye()">✕</button></div>
+            <form id="formModifierEmploye" onsubmit="return false;">
+                <input type="hidden" id="modifierEmployeId">
+                <div class="form-group"><label for="modifierEmployeNom">Nom complet *</label><input type="text" id="modifierEmployeNom" class="form-control" required></div>
+                <div class="form-group"><label for="modifierEmployePhoto">Nouvelle photo (optionnel)</label><input type="file" id="modifierEmployePhoto" class="form-control-file" accept="image/jpeg,image/png,image/webp"></div>
+                <div style="text-align:center;"><img id="modifierPreviewPhoto" class="upload-preview" src="" alt="Photo actuelle"></div>
+                <div class="modal-footer"><button type="button" class="btn btn-outline" onclick="fermerModalModifierEmploye()">Annuler</button><button type="button" class="btn btn-primaire" id="btnModifierEmploye">Enregistrer</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal détail client -->
+    <div id="modalDetailClient" class="modal-overlay hidden">
+        <div class="modal" style="max-width:650px;"><div class="modal-header"><h3>👤 Détails du client</h3><button class="modal-close" onclick="fermerModalDetailClient()">✕</button></div>
+            <form id="formDetailClient" onsubmit="return false;">
+                <input type="hidden" id="detailClientId">
+                <div class="form-group"><label for="detailClientNom">Nom complet *</label><input type="text" id="detailClientNom" class="form-control" required></div>
+                <div class="form-group"><label for="detailClientTelephone">Téléphone</label><input type="tel" id="detailClientTelephone" class="form-control"></div>
+                <h4 style="margin-top:1.5rem;">💎 Prix spéciaux</h4>
+                <div class="form-group"><label>Caramel Simple</label><input type="number" id="detailPrixCaramelSimple" class="form-control" placeholder="Prix unitaire" step="1" min="0"><small>Lot : <input type="number" id="detailLotCaramelSimple" placeholder="Qté" style="width:70px;display:inline;" min="0"> pour <input type="number" id="detailPrixLotCaramelSimple" placeholder="Prix" style="width:120px;display:inline;" min="0"> FCFA</small></div>
+                <div class="form-group"><label>Caramel Gingembre</label><input type="number" id="detailPrixCaramelGingembre" class="form-control" placeholder="Prix unitaire" step="1" min="0"><small>Lot : <input type="number" id="detailLotCaramelGingembre" placeholder="Qté" style="width:70px;display:inline;" min="0"> pour <input type="number" id="detailPrixLotCaramelGingembre" placeholder="Prix" style="width:120px;display:inline;" min="0"> FCFA</small></div>
+                <div class="form-group"><label>Morceaux (Casée) - kg</label><input type="number" id="detailPrixMorceaux" class="form-control" placeholder="Prix unitaire" step="1" min="0"><small>Lot : <input type="number" id="detailLotMorceaux" placeholder="Qté" style="width:70px;display:inline;" min="0"> pour <input type="number" id="detailPrixLotMorceaux" placeholder="Prix" style="width:120px;display:inline;" min="0"> FCFA</small></div>
+                <div class="form-group"><label>Farine (Kilo)</label><input type="number" id="detailPrixFarineKilo" class="form-control" placeholder="Prix unitaire" step="1" min="0"><small>Lot : <input type="number" id="detailLotFarineKilo" placeholder="Qté" style="width:70px;display:inline;" min="0"> pour <input type="number" id="detailPrixLotFarineKilo" placeholder="Prix" style="width:120px;display:inline;" min="0"> FCFA</small></div>
+                <div class="modal-footer"><button type="button" class="btn btn-danger" id="btnSupprimerClientDetail" style="margin-right:auto;">🗑️ Supprimer définitivement</button><button type="button" class="btn btn-outline" onclick="fermerModalDetailClient()">Annuler</button><button type="button" class="btn btn-primaire" id="btnModifierClient">💾 Enregistrer</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth-check.js"></script>
+    <script src="js/admin.js"></script>
+
+    <script>
+        if ('serviceWorker' in navigator) { window.addEventListener('load', function() { navigator.serviceWorker.register('/sw.js').then(r=>console.log('✅ SW')).catch(e=>console.log('❌ SW')); }); }
+        let dp; window.addEventListener('beforeinstallprompt', function(e) { e.preventDefault(); dp = e; if (!window.matchMedia('(display-mode: standalone)').matches && localStorage.getItem('faso_teedo_installed') !== 'true' && !document.getElementById('banniereInstallation')) { const b = document.createElement('div'); b.id='banniereInstallation'; b.innerHTML = `<div class="banniere-install-content"><div class="banniere-install-logo"><img src="icons/icon-192x192.png" alt="Logo"></div><div class="banniere-install-info"><div class="banniere-install-titre">FASO TEEDO</div><div class="banniere-install-sous-titre">Application de gestion</div></div><button class="banniere-install-btn" id="btnInstallBanniere">📲 Installer</button><button class="banniere-install-close" id="btnCloseBanniere">✕</button></div>`; b.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:99999;background:linear-gradient(135deg,#1a5632,#2d8a4e);padding:16px 20px;box-shadow:0 -4px 20px rgba(0,0,0,0.4);animation:slideUpBanniere 0.5s ease;border-top:4px solid #d4a017;'; document.body.appendChild(b); document.getElementById('btnInstallBanniere').addEventListener('click', async()=>{if(dp){dp.prompt();await dp.userChoice;dp=null;localStorage.setItem('faso_teedo_installed','true');b.remove();}}); document.getElementById('btnCloseBanniere').addEventListener('click', ()=>b.remove()); } });
+    </script>
+</body>
+</html>
