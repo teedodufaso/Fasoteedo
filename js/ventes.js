@@ -1,6 +1,6 @@
 /* =============================================
-   FASO TEEDO - SCRIPTS VENTES V6.0
-   AVEC SYSTÈME DE LOT DE 3
+   FASO TEEDO - SCRIPTS VENTES V6.1
+   AVEC SYSTÈME DE LOT DE 3 - PRIX STANDARD = PRIX DU PRODUIT
    ============================================= */
 
 'use strict';
@@ -15,7 +15,6 @@ let modePaiementFidele = 'espece';
 let totalGlobalActuel = 0;
 let prixLotActif = false;
 let prixLot = 5000; // Prix fixe pour un lot de 3
-let prixStandardActuel = 0;
 
 // ✅ Produits disponibles
 let produitsDisponibles = [
@@ -36,7 +35,6 @@ async function initialiserVentes() {
     try {
         await chargerStockVente();
         await chargerClients();
-        await chargerPrixStandard();
         
         initialiserModeSelector();
         initialiserRechercheClient();
@@ -44,75 +42,11 @@ async function initialiserVentes() {
         initialiserFormulaireFidele();
         initialiserNouveauClient();
         await chargerHistoriqueVentes();
-        console.log('✅ Ventes V6.0 initialisé');
+        console.log('✅ Ventes V6.1 initialisé');
     } catch (error) {
         console.error('❌ Erreur:', error);
         afficherToast('Erreur de chargement', 'error');
     }
-}
-
-// ==========================================
-// CHARGEMENT DU PRIX STANDARD
-// ==========================================
-async function chargerPrixStandard() {
-    try {
-        // Récupérer la configuration du jour pour connaître le nombre de personnes
-        const today = getTodayDate();
-        const configJour = await getConfigJournee(today);
-        if (configJour && configJour.nb_employes) {
-            const grille = await getGrillePrix(configJour.type_travail || 'fabrication');
-            prixStandardActuel = getPrixParPersonne(configJour.nb_employes, grille);
-            console.log('✅ Prix standard chargé:', prixStandardActuel, 'FCFA');
-        } else {
-            // Prix par défaut si pas de config
-            prixStandardActuel = 1750;
-            console.log('⚠️ Prix standard par défaut:', prixStandardActuel, 'FCFA');
-        }
-    } catch(e) {
-        console.error('❌ Erreur chargement prix standard:', e);
-        prixStandardActuel = 1750;
-    }
-}
-
-// ==========================================
-// CALCUL AVEC LOT DE 3
-// ==========================================
-function calculerPrixAvecLot(quantite, prixUnitaire, appliquerLot) {
-    if (!appliquerLot) {
-        return Math.round(quantite * prixUnitaire);
-    }
-    
-    const lotsComplets = Math.floor(quantite / 3);
-    const reste = quantite % 3;
-    const total = (lotsComplets * prixLot) + (reste * prixUnitaire);
-    return Math.round(total);
-}
-
-function getDetailsLot(quantite, prixUnitaire, appliquerLot) {
-    if (!appliquerLot) {
-        return {
-            total: Math.round(quantite * prixUnitaire),
-            details: `${quantite} × ${prixUnitaire} F = ${Math.round(quantite * prixUnitaire).toLocaleString('fr-FR')} F`
-        };
-    }
-    
-    const lotsComplets = Math.floor(quantite / 3);
-    const reste = quantite % 3;
-    const total = (lotsComplets * prixLot) + (reste * prixUnitaire);
-    
-    let details = '';
-    if (lotsComplets > 0) {
-        details += `${lotsComplets} lot(s) de 3 × ${prixLot} F = ${(lotsComplets * prixLot).toLocaleString('fr-FR')} F`;
-    }
-    if (reste > 0) {
-        if (lotsComplets > 0) details += ' + ';
-        details += `${reste} × ${prixUnitaire} F = ${(reste * prixUnitaire).toLocaleString('fr-FR')} F`;
-    }
-    
-    return {
-        total: total,
-        details: details || '0 F'
-    };
 }
 
 // ==========================================
@@ -175,7 +109,8 @@ function afficherBandeauStock() {
     });
 }
 
-function getPrixProduit(typeProduit) {
+// ✅ Le prix standard est celui du produit dans stock_vente
+function getPrixStandard(typeProduit) {
     if (!stockVenteActuel || stockVenteActuel.length === 0) return 0;
     const p = stockVenteActuel.find(item => item.type_produit === typeProduit);
     return p ? Math.round(parseFloat(p.prix_unitaire) || 0) : 0;
@@ -185,6 +120,47 @@ function getQuantiteStock(typeProduit) {
     if (!stockVenteActuel || stockVenteActuel.length === 0) return 0;
     const p = stockVenteActuel.find(item => item.type_produit === typeProduit);
     return p ? parseFloat(p.quantite) || 0 : 0;
+}
+
+// ==========================================
+// CALCUL AVEC LOT DE 3
+// ==========================================
+function calculerPrixAvecLot(quantite, prixUnitaire, appliquerLot) {
+    if (!appliquerLot) {
+        return Math.round(quantite * prixUnitaire);
+    }
+    
+    const lotsComplets = Math.floor(quantite / 3);
+    const reste = quantite % 3;
+    const total = (lotsComplets * prixLot) + (reste * prixUnitaire);
+    return Math.round(total);
+}
+
+function getDetailsLot(quantite, prixUnitaire, appliquerLot) {
+    if (!appliquerLot) {
+        return {
+            total: Math.round(quantite * prixUnitaire),
+            details: `${quantite} × ${prixUnitaire} F = ${Math.round(quantite * prixUnitaire).toLocaleString('fr-FR')} F`
+        };
+    }
+    
+    const lotsComplets = Math.floor(quantite / 3);
+    const reste = quantite % 3;
+    const total = (lotsComplets * prixLot) + (reste * prixUnitaire);
+    
+    let details = '';
+    if (lotsComplets > 0) {
+        details += `${lotsComplets} lot(s) de 3 × ${prixLot} F = ${(lotsComplets * prixLot).toLocaleString('fr-FR')} F`;
+    }
+    if (reste > 0) {
+        if (lotsComplets > 0) details += ' + ';
+        details += `${reste} × ${prixUnitaire} F = ${(reste * prixUnitaire).toLocaleString('fr-FR')} F`;
+    }
+    
+    return {
+        total: total,
+        details: details || '0 F'
+    };
 }
 
 // ==========================================
@@ -279,10 +255,9 @@ function initialiserFormulairePassage() {
     const select = document.getElementById('passageProduit');
     if (select) {
         select.addEventListener('change', function() {
-            const prix = getPrixProduit(this.value);
-            // Utiliser le prix standard si disponible, sinon le prix du produit
-            const prixFinal = prixStandardActuel > 0 ? prixStandardActuel : prix;
-            document.getElementById('passagePrixUnitaire').value = prixFinal;
+            // ✅ Le prix standard = prix du produit dans stock_vente
+            const prix = getPrixStandard(this.value);
+            document.getElementById('passagePrixUnitaire').value = prix;
             calculerTotalLignePassage();
         });
     }
@@ -314,15 +289,15 @@ function initialiserFormulairePassage() {
 
 function calculerTotalLignePassage() {
     const qte = parseFloat(document.getElementById('passageQuantite').value) || 0;
-    const prix = parseFloat(document.getElementById('passagePrixUnitaire').value) || 0;
+    const produit = document.getElementById('passageProduit').value;
+    const prix = getPrixStandard(produit);
     const appliquerLot = document.getElementById('passageOptionLot').checked;
     
-    // Utiliser prixStandardActuel si disponible
-    const prixFinal = prixStandardActuel > 0 ? prixStandardActuel : prix;
-    document.getElementById('passagePrixUnitaire').value = prixFinal;
+    // Mettre à jour le champ prix unitaire
+    document.getElementById('passagePrixUnitaire').value = prix;
     
-    const resultat = calculerPrixAvecLot(qte, prixFinal, appliquerLot);
-    const details = getDetailsLot(qte, prixFinal, appliquerLot);
+    const resultat = calculerPrixAvecLot(qte, prix, appliquerLot);
+    const details = getDetailsLot(qte, prix, appliquerLot);
     
     document.getElementById('passageTotalLigne').textContent = `Total ligne : ${resultat.toLocaleString('fr-FR')} FCFA`;
     
@@ -332,6 +307,7 @@ function calculerTotalLignePassage() {
         if (appliquerLot && qte >= 3) {
             detailLot.textContent = `📦 ${details.details}`;
             detailLot.style.display = 'block';
+            detailLot.style.color = '#666';
         } else if (appliquerLot && qte > 0 && qte < 3) {
             detailLot.textContent = `⚠️ Moins de 3 unités, pas de lot appliqué`;
             detailLot.style.display = 'block';
@@ -345,7 +321,7 @@ function calculerTotalLignePassage() {
 function ajouterAuPanierPassage() {
     const produit = document.getElementById('passageProduit').value;
     const qte = parseFloat(document.getElementById('passageQuantite').value) || 0;
-    const prix = parseFloat(document.getElementById('passagePrixUnitaire').value) || 0;
+    const prix = getPrixStandard(produit);
     const appliquerLot = document.getElementById('passageOptionLot').checked;
     
     if (!produit) { afficherToast('Sélectionnez un produit', 'warning'); return; }
@@ -546,7 +522,7 @@ async function validerPanierPassage() {
 }
 
 // ==========================================
-// FORMULAIRE FIDÈLE (avec lot)
+// FORMULAIRE FIDÈLE
 // ==========================================
 function initialiserFormulaireFidele() {
     const select = document.getElementById('fideleProduit');
@@ -586,9 +562,9 @@ async function mettreAJourPrixFidele() {
         return;
     }
     
-    let prix = getPrixProduit(produit);
-    // Utiliser le prix standard si disponible
-    let prixFinal = prixStandardActuel > 0 ? prixStandardActuel : prix;
+    // ✅ Prix standard = prix du produit dans stock_vente
+    let prix = getPrixStandard(produit);
+    let prixFinal = prix;
     
     if (clientSelectionne) {
         try {
@@ -612,9 +588,10 @@ async function mettreAJourPrixFidele() {
 
 function calculerTotalLigneFidele() {
     const qte = parseFloat(document.getElementById('fideleQuantite').value) || 0;
+    const produit = document.getElementById('fideleProduit').value;
     const prixText = document.getElementById('fidelePrixApplique').value;
     const prixMatch = prixText.match(/^(\d+)/);
-    const prix = prixMatch ? parseInt(prixMatch[0]) : 0;
+    const prix = prixMatch ? parseInt(prixMatch[0]) : getPrixStandard(produit);
     const appliquerLot = document.getElementById('fideleOptionLot').checked;
     
     const resultat = calculerPrixAvecLot(qte, prix, appliquerLot);
@@ -627,6 +604,7 @@ function calculerTotalLigneFidele() {
         if (appliquerLot && qte >= 3) {
             detailLot.textContent = `📦 ${details.details}`;
             detailLot.style.display = 'block';
+            detailLot.style.color = '#666';
         } else if (appliquerLot && qte > 0 && qte < 3) {
             detailLot.textContent = `⚠️ Moins de 3 unités, pas de lot appliqué`;
             detailLot.style.display = 'block';
@@ -644,7 +622,7 @@ function ajouterAuPanierFidele() {
     const qte = parseFloat(document.getElementById('fideleQuantite').value) || 0;
     const prixText = document.getElementById('fidelePrixApplique').value;
     const prixMatch = prixText.match(/^(\d+)/);
-    const prix = prixMatch ? parseInt(prixMatch[0]) : 0;
+    const prix = prixMatch ? parseInt(prixMatch[0]) : getPrixStandard(produit);
     const appliquerLot = document.getElementById('fideleOptionLot').checked;
     
     if (!produit) { afficherToast('Sélectionnez un produit', 'warning'); return; }
@@ -1056,4 +1034,4 @@ function afficherToast(message, type) {
     }, 4000);
 }
 
-console.log('💰 Ventes V6.0 complet - AVEC SYSTÈME DE LOT DE 3');
+console.log('💰 Ventes V6.1 complet - Prix standard = prix du produit dans stock_vente');
